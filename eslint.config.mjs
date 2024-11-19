@@ -1,12 +1,12 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
-import { configs } from "eslint-plugin-prettier";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   { files: ["**/*.{js,mjs,cjs,ts}"] },
-  { languageOptions: { globals: globals.node } },
+  { languageOptions: { globals: { ...globals.node, process: "readonly" } } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -18,9 +18,6 @@ export default [
       "no-console": "warn",
       "no-undef": "error",
     },
-    globals: {
-      process: "readonly",
-    },
   },
-  configs,
+  eslintPluginPrettierRecommended,
 ];
