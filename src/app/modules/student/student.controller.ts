@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { StudentServices } from "./student.service";
+import StudentValidationSchema from "./student.validation";
 
 const getAllStudents = async (req: Request, res: Response) => {
   try {
@@ -31,6 +32,9 @@ const getStudentById = async (req: Request, res: Response) => {
 const createStudent = async (req: Request, res: Response) => {
   try {
     const { student: studentData } = req.body;
+    const { error } = StudentValidationSchema.validate(studentData);
+    if (error) throw error?.details;
+
     const result = await StudentServices.createStudentIntoDB(studentData);
     res.status(200).json({
       success: true,
@@ -38,7 +42,11 @@ const createStudent = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Student creation failed",
+      error: error,
+    });
   }
 };
 
