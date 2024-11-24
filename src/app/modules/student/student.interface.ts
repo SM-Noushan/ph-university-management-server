@@ -39,12 +39,19 @@ export type TStudent = {
   isActive: boolean;
 };
 
-export type StudentMethods = {
-  isStudentExists(id: string): Promise<TStudent | null>;
-};
+// for creating instance
 
-export type StudentModel = Model<
-  TStudent,
-  Record<string, never>,
-  StudentMethods
->;
+// export interface StudentMethods {
+//   isStudentExists(id: string): Promise<TStudent | null>;
+// }
+
+// export type StudentModel = Model<
+//   TStudent,
+//   Record<string, never>,
+//   StudentMethods
+// >;
+
+// for creating static
+export interface StudentModel extends Model<TStudent> {
+  isStudentExist(id: string): Promise<TStudent | null>;
+}

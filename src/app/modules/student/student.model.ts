@@ -3,7 +3,7 @@ import {
   TGuardian,
   TLocalGuardian,
   TStudent,
-  StudentMethods,
+  // StudentMethods,
   StudentModel,
   TUserName,
 } from "./student.interface";
@@ -75,7 +75,8 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
   },
 });
 
-const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
+// const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
+const studentSchema = new Schema<TStudent, StudentModel>({
   id: {
     type: String,
     required: [true, "Student ID is required"],
@@ -167,9 +168,36 @@ const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
   },
 });
 
-studentSchema.methods.isStudentExists = async function (id: string) {
-  const existingStudent = await Student.findOne({ id });
+// creating a custom instance method
+// studentSchema.methods.isStudentExists = async function (id: string) {
+//   const existingStudent = await Student.findOne({ id });
+//   return existingStudent;
+// };
+
+// creating a custom static method
+studentSchema.statics.isStudentExist = async function (id: string) {
+  // const existingStudent = await Student.findOne({ id });
+  const existingStudent = await this.findOne({ id });
   return existingStudent;
 };
+
+// pre save middleware --------- create/save
+studentSchema.pre("save", async function (next) {
+  console.log("PreSave => ", this);
+  // const student = this as TStudent;
+  // student.id = student.id.toUpperCase();
+  next();
+});
+// post save middleware
+studentSchema.post("save", async function () {
+  console.log("PostSave => ", this);
+});
+
+studentSchema.pre("find", async function () {
+  console.log("PreFind => ", this);
+  // const student = this as TStudent;
+  // student.id = student.id.toUpperCase();
+  // next();
+});
 
 export const Student = model<TStudent, StudentModel>("Student", studentSchema);

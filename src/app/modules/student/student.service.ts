@@ -11,16 +11,18 @@ const getStudentByIdFromDB = async (id: string) => {
 };
 
 const createStudentIntoDB = async (studentData: TStudent) => {
-  // static method
-  // const result = await Student.create(studentData);
-
-  // instance method
-  const student = new Student(studentData);
-  // custom method
-  if (await student.isStudentExists(studentData.id))
+  // custom static method
+  if (await Student.isStudentExist(studentData.id))
     throw new Error("Student already exists");
+  // static method
+  const result = await Student.create(studentData);
+  // instance method
+  // const student = new Student(studentData);
+  // // custom method
+  // if (await student.isStudentExists(studentData.id))
+  //   throw new Error("Student already exists");
 
-  const result = await student.save();
+  // const result = await student.save();
 
   return result;
 };
