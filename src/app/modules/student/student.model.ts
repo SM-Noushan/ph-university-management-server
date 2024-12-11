@@ -91,6 +91,12 @@ const studentSchema = new Schema<TStudent, StudentModel>({
       message: "ID - {VALUE} already exists",
     },
   },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "User ID is required"],
+    unique: true,
+  },
   name: {
     type: userNameSchema,
     required: [true, "Student name is required"],
@@ -136,13 +142,13 @@ const studentSchema = new Schema<TStudent, StudentModel>({
     type: String,
     required: [true, "Emergency contact number is required"],
   },
-  bloodGroup: {
-    type: String,
-    enum: {
-      values: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
-      message: "{VALUE} is not supported as a blood group",
-    },
-  },
+  // bloodGroup: {
+  //   type: String,
+  //   enum: {
+  //     values: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+  //     message: "{VALUE} is not supported as a blood group",
+  //   },
+  // },
   presentAddress: {
     type: String,
     required: [true, "Present address is required"],
@@ -162,9 +168,9 @@ const studentSchema = new Schema<TStudent, StudentModel>({
   profileImg: {
     type: String,
   },
-  isActive: {
+  isDeleted: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 });
 
@@ -180,24 +186,5 @@ studentSchema.statics.isStudentExist = async function (id: string) {
   const existingStudent = await this.findOne({ id });
   return existingStudent;
 };
-
-// pre save middleware --------- create/save
-studentSchema.pre("save", async function (next) {
-  console.log("PreSave => ", this);
-  // const student = this as TStudent;
-  // student.id = student.id.toUpperCase();
-  next();
-});
-// post save middleware
-studentSchema.post("save", async function () {
-  console.log("PostSave => ", this);
-});
-
-studentSchema.pre("find", async function () {
-  console.log("PreFind => ", this);
-  // const student = this as TStudent;
-  // student.id = student.id.toUpperCase();
-  // next();
-});
 
 export const Student = model<TStudent, StudentModel>("Student", studentSchema);

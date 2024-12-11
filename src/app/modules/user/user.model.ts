@@ -21,6 +21,7 @@ const userSchema = new Schema<TUser>(
         message: "{VALUE} is not a valid status",
       },
       required: true,
+      default: "in-progress",
     },
     isDeleted: { type: Boolean, required: true, default: false },
   },
