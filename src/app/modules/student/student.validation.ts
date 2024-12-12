@@ -118,7 +118,7 @@
 
 // export default StudentValidationSchema;
 
-// import { Types } from "mongoose";
+import { Types } from "mongoose";
 import { z } from "zod";
 
 // Utility schemas
@@ -129,12 +129,13 @@ const alphaString = trimmedString.regex(
 );
 
 // Custom validation for MongoDB ObjectId as a string
-// const ObjectIdValidationSchema = z
-//   .string()
-//   .refine(value => Types.ObjectId.isValid(value), {
-//     message: "Invalid ID format",
-//   })
-//   .transform(value => new Types.ObjectId(value));
+const ObjectIdValidationSchema = z
+  .string()
+  .trim()
+  .refine(value => Types.ObjectId.isValid(value), {
+    message: "Invalid Id format",
+  })
+  .transform(value => new Types.ObjectId(value));
 
 const contactNo = trimmedString.regex(
   /^\d{10,15}$/,
@@ -198,6 +199,7 @@ export const CreateStudentValidationSchema = z.object({
       permanentAddress: address,
       guardian: guardianValidationSchema,
       localGuardian: localGuardianValidationSchema,
+      admissionSemester: ObjectIdValidationSchema,
       profileImg: trimmedString.url().optional(),
     }),
   }),
