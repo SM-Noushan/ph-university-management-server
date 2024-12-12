@@ -19,11 +19,13 @@ export const MonthEnum: TMonths[] = [
   "November",
   "December",
 ];
+
 export const AcademicSemesterNameEnum: TAcademicSemesterNames[] = [
   "Autumn",
   "Summer",
   "Fall",
 ];
+
 export const AcademicSemesterCodeEnum: TAcademicSemesterCodes[] = [
   "01",
   "02",

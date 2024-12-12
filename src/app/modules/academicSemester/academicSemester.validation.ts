@@ -21,6 +21,11 @@ export const CreateAcademicSemesterValidationSchema = z.object({
   }),
 });
 
+export const UpdateAcademicSemesterValidationSchema = z.object({
+  body: CreateAcademicSemesterValidationSchema.shape.body.partial(),
+});
+
 export const AcademicSemesterValidations = {
   CreateAcademicSemesterValidationSchema,
+  UpdateAcademicSemesterValidationSchema,
 };
