@@ -3,7 +3,7 @@ import { StudentServices } from "./student.service";
 import sendResponse from "../../utils/sendResponse";
 import catchAsync from "../../utils/catchAsync";
 
-const getAllStudents = catchAsync(async (req, res, next) => {
+const getAllStudents = catchAsync(async (req, res) => {
   const result = await StudentServices.getAllStudentsFromDB();
   sendResponse(res, {
     statusCode: status.OK,
@@ -13,7 +13,7 @@ const getAllStudents = catchAsync(async (req, res, next) => {
   });
 });
 
-const getStudentById = catchAsync(async (req, res, next) => {
+const getStudentById = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await StudentServices.getStudentByIdFromDB(id);
   sendResponse(res, {

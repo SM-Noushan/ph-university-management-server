@@ -118,7 +118,7 @@
 
 // export default StudentValidationSchema;
 
-import { Types } from "mongoose";
+// import { Types } from "mongoose";
 import { z } from "zod";
 
 // Utility schemas
@@ -129,12 +129,12 @@ const alphaString = trimmedString.regex(
 );
 
 // Custom validation for MongoDB ObjectId as a string
-const ObjectIdValidationSchema = z
-  .string()
-  .refine(value => Types.ObjectId.isValid(value), {
-    message: "Invalid ID format",
-  })
-  .transform(value => new Types.ObjectId(value));
+// const ObjectIdValidationSchema = z
+//   .string()
+//   .refine(value => Types.ObjectId.isValid(value), {
+//     message: "Invalid ID format",
+//   })
+//   .transform(value => new Types.ObjectId(value));
 
 const contactNo = trimmedString.regex(
   /^\d{10,15}$/,
@@ -169,11 +169,14 @@ export const localGuardianValidationSchema = z.object({
 });
 
 // Define the main Student schema
-export const StudentValidationSchema = z.object({
+export const CreateStudentValidationSchema = z.object({
   body: z.object({
     password: z
-      .string()
-      .max(20, "Password must be at most 20 characters long")
+      .string({
+        invalid_type_error: "Password must be a string",
+      })
+      .max(20, { message: "Max 20 characters" })
+      .min(6, { message: "Min 6 characters" })
       .optional(),
     student: z.object({
       name: userNameValidationSchema,
@@ -200,4 +203,4 @@ export const StudentValidationSchema = z.object({
   }),
 });
 
-export const StudentValidations = { StudentValidationSchema };
+export const StudentValidations = { CreateStudentValidationSchema };
