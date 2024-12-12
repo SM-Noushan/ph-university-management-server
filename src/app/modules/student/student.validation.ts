@@ -118,6 +118,7 @@
 
 // export default StudentValidationSchema;
 
+import { Types } from "mongoose";
 import { z } from "zod";
 
 // Utility schemas
@@ -126,6 +127,14 @@ const alphaString = trimmedString.regex(
   /^[A-Za-z\s]+$/,
   "Must contain only alphabetic characters and spaces",
 );
+
+// Custom validation for MongoDB ObjectId as a string
+const ObjectIdValidationSchema = z
+  .string()
+  .refine(value => Types.ObjectId.isValid(value), {
+    message: "Invalid ID format",
+  })
+  .transform(value => new Types.ObjectId(value));
 
 const contactNo = trimmedString.regex(
   /^\d{10,15}$/,
@@ -161,28 +170,34 @@ export const localGuardianValidationSchema = z.object({
 
 // Define the main Student schema
 export const StudentValidationSchema = z.object({
-  id: trimmedString,
-  name: userNameValidationSchema,
-  gender: z.enum(["male", "female"]),
-  dateOfBirth: z
-    .string()
-    .optional()
-    .transform(value => (value ? new Date(value) : undefined))
-    .refine(date => date === undefined || !isNaN(date.getTime()), {
-      message: "Invalid date format",
+  body: z.object({
+    password: z
+      .string()
+      .max(20, "Password must be at most 20 characters long")
+      .optional(),
+    student: z.object({
+      name: userNameValidationSchema,
+      gender: z.enum(["male", "female"]),
+      dateOfBirth: z
+        .string()
+        .optional()
+        .transform(value => (value ? new Date(value) : undefined))
+        .refine(date => date === undefined || !isNaN(date.getTime()), {
+          message: "Invalid date format",
+        }),
+      email: trimmedString.email(),
+      contactNo: contactNo,
+      emergencyContactNo: contactNo,
+      // bloodGroup: z
+      //   .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
+      //   .optional(),
+      presentAddress: address,
+      permanentAddress: address,
+      guardian: guardianValidationSchema,
+      localGuardian: localGuardianValidationSchema,
+      profileImg: trimmedString.url().optional(),
     }),
-  email: trimmedString.email(),
-  contactNo: contactNo,
-  emergencyContactNo: contactNo,
-  bloodGroup: z
-    .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
-    .optional(),
-  presentAddress: address,
-  permanentAddress: address,
-  guardian: guardianValidationSchema,
-  localGuardian: localGuardianValidationSchema,
-  profileImg: trimmedString.url().optional(),
-  isActive: z.boolean().default(true),
+  }),
 });
 
-export default StudentValidationSchema;
+export const StudentValidations = { StudentValidationSchema };
