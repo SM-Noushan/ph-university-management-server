@@ -43,6 +43,8 @@ academicDepartmentSchema.pre("save", async function (next) {
 
 academicDepartmentSchema.pre("findOneAndUpdate", async function (next) {
   const { _id } = this.getFilter();
+  const docExists = await AcademicDepartment.exists({ _id });
+  if (!docExists) throw new Error("Department does not exist");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const update = this.getUpdate() as Record<string, any>;
   if (update.academicFaculty)
