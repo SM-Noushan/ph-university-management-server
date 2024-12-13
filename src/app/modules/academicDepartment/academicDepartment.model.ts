@@ -1,6 +1,8 @@
 import { model, Schema } from "mongoose";
 import { TAcademicDepartment } from "./academicDepartment.interface";
 import { AcademicFaculty } from "../academicFaculty/academicFaculty.model";
+import AppError from "../../errors/AppError";
+import status from "http-status";
 
 const academicDepartmentSchema = new Schema<TAcademicDepartment>(
   {
@@ -23,7 +25,10 @@ const academicDepartmentSchema = new Schema<TAcademicDepartment>(
 const validateAcademicFaculty = async (facultyId: string) => {
   const facultyExists = await AcademicFaculty.exists({ _id: facultyId });
   if (!facultyExists) {
-    throw new Error("Referenced Academic Faculty does not exist");
+    throw new AppError(
+      status.NOT_FOUND,
+      "Referenced Academic Faculty does not exist",
+    );
   }
 };
 
@@ -31,7 +36,7 @@ const validateDepartment = async (name: string, id: string = "") => {
   const query = id ? { name, _id: { $ne: id } } : { name };
   const departmentExists = await AcademicDepartment.exists(query);
   if (departmentExists) {
-    throw new Error("Department already exists");
+    throw new AppError(status.NOT_FOUND, "Department already exists");
   }
 };
 
@@ -44,7 +49,8 @@ academicDepartmentSchema.pre("save", async function (next) {
 academicDepartmentSchema.pre("findOneAndUpdate", async function (next) {
   const { _id } = this.getFilter();
   const docExists = await AcademicDepartment.exists({ _id });
-  if (!docExists) throw new Error("Department does not exist");
+  if (!docExists)
+    throw new AppError(status.NOT_FOUND, "Department does not exist");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const update = this.getUpdate() as Record<string, any>;
   if (update.academicFaculty)

@@ -1,3 +1,5 @@
+import status from "http-status";
+import AppError from "../../errors/AppError";
 import { TAcademicFaculty } from "./academicFaculty.interface";
 import { AcademicFaculty } from "./academicFaculty.model";
 
@@ -24,7 +26,8 @@ const updateAcademicFacultyIntoDB = async (
     new: true,
     runValidators: true,
   });
-  if (!result) throw new Error("Academic faculty not found");
+  if (!result)
+    throw new AppError(status.NOT_FOUND, "Academic faculty not found");
   return result;
 };
 

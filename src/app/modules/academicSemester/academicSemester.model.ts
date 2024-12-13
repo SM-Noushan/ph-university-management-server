@@ -1,3 +1,4 @@
+import status from "http-status";
 import {
   AcademicSemesterCodeEnum,
   AcademicSemesterNameEnum,
@@ -5,6 +6,7 @@ import {
 } from "./academicSemester.constant";
 import { model, Schema } from "mongoose";
 import { TAcademicSemester } from "./academicSemester.interface";
+import AppError from "../../errors/AppError";
 
 const academicSemesterSchema = new Schema<TAcademicSemester>(
   {
@@ -43,7 +45,8 @@ academicSemesterSchema.pre("save", async function (next) {
     year: this.year,
     name: this.name,
   });
-  if (isSemesterExists) throw new Error("Academic semester already exists");
+  if (isSemesterExists)
+    throw new AppError(status.NOT_FOUND, "Academic semester already exists");
   next();
 });
 
@@ -61,7 +64,10 @@ academicSemesterSchema.pre("findOneAndUpdate", async function (next) {
       });
 
       if (isSemesterExists) {
-        throw new Error("Update Failed: Academic semester already exists");
+        throw new AppError(
+          status.NOT_FOUND,
+          "Update Failed: Academic semester already exists",
+        );
       }
     }
   }

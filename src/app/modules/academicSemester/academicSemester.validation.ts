@@ -1,9 +1,11 @@
 import { z } from "zod";
+import status from "http-status";
 import {
   AcademicSemesterCodeEnum,
   AcademicSemesterNameEnum,
   MonthEnum,
 } from "./academicSemester.constant";
+import AppError from "../../errors/AppError";
 
 export const CreateAcademicSemesterValidationSchema = z.object({
   body: z.object({
@@ -12,7 +14,7 @@ export const CreateAcademicSemesterValidationSchema = z.object({
     year: z.string().transform(value => {
       const date = new Date(value);
       if (isNaN(date.getTime())) {
-        throw new Error("Invalid year format");
+        throw new AppError(status.NOT_FOUND, "Invalid year format");
       }
       return date.getFullYear();
     }),
