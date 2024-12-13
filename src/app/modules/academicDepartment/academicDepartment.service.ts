@@ -24,7 +24,6 @@ const updateAcademicDepartmentIntoDB = async (
     new: true,
     runValidators: true,
   });
-  if (!result) throw new Error("Academic department not found");
   return result;
 };
 
