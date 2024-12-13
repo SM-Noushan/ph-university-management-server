@@ -118,33 +118,14 @@
 
 // export default StudentValidationSchema;
 
-import { Types } from "mongoose";
 import { z } from "zod";
-
-// Utility schemas
-const trimmedString = z.string().trim();
-const alphaString = trimmedString.regex(
-  /^[A-Za-z\s]+$/,
-  "Must contain only alphabetic characters and spaces",
-);
-
-// Custom validation for MongoDB ObjectId as a string
-const ObjectIdValidationSchema = z
-  .string()
-  .trim()
-  .refine(value => Types.ObjectId.isValid(value), {
-    message: "Invalid Id format",
-  })
-  .transform(value => new Types.ObjectId(value));
-
-const contactNo = trimmedString.regex(
-  /^\d{10,15}$/,
-  "Must be a valid contact number",
-);
-const address = trimmedString.min(
-  5,
-  "Address must be at least 5 characters long",
-);
+import {
+  address,
+  alphaString,
+  contactNo,
+  ObjectIdValidationSchema,
+  trimmedString,
+} from "../../utils/validation";
 
 // Define reusable components for sub-schemas
 export const userNameValidationSchema = z.object({
