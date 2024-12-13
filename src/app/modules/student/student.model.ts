@@ -126,9 +126,16 @@ const studentSchema = new Schema<TStudent, StudentModel>(
         },
         {
           validator: async function (email: string) {
-            const count: number = await model("Student").countDocuments({
-              email,
-            });
+            let count: number;
+            if (this.op === "findOneAndUpdate")
+              count = await model("Student").countDocuments({
+                email,
+                id: { $ne: this.getQuery().id },
+              });
+            else
+              count = await model("Student").countDocuments({
+                email,
+              });
             return count === 0;
           },
           message: "Email - {VALUE} already exists",

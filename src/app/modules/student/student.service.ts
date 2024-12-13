@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
+import status from "http-status";
 import { Student } from "./student.model";
 import { User } from "../user/user.model";
 import AppError from "../../errors/AppError";
-import status from "http-status";
+import { TStudent } from "./student.interface";
+import flattenNestedObjects from "./student.utility";
 
 const getAllStudentsFromDB = async () => {
   const result = await Student.find()
@@ -26,6 +28,19 @@ const getStudentByIdFromDB = async (id: string) => {
       },
     });
   return result;
+};
+
+const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
+  const updatedStudent = await Student.findOneAndUpdate(
+    { id },
+    flattenNestedObjects(payload),
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  return { updatedStudent };
 };
 
 const deleteStudentFromDB = async (id: string) => {
@@ -60,5 +75,6 @@ const deleteStudentFromDB = async (id: string) => {
 export const StudentServices = {
   getAllStudentsFromDB,
   getStudentByIdFromDB,
+  updateStudentIntoDB,
   deleteStudentFromDB,
 };

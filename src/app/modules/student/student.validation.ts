@@ -187,4 +187,14 @@ export const CreateStudentValidationSchema = z.object({
   }),
 });
 
-export const StudentValidations = { CreateStudentValidationSchema };
+export const UpdateStudentValidationSchema = z.object({
+  body: z.object({
+    student:
+      CreateStudentValidationSchema.shape.body.shape.student.deepPartial(),
+  }),
+});
+
+export const StudentValidations = {
+  CreateStudentValidationSchema,
+  UpdateStudentValidationSchema,
+};
