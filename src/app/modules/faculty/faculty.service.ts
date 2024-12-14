@@ -1,4 +1,8 @@
+import mongoose from "mongoose";
+import status from "http-status";
 import { Faculty } from "./faculty.model";
+import { User } from "../user/user.model";
+import AppError from "../../errors/AppError";
 import { TFaculty } from "./faculty.interface";
 import validateDoc from "../../utils/validateDoc";
 import QueryBuilder from "../../builder/QueryBuilder";
@@ -58,8 +62,37 @@ const updateFacultyIntoDB = async (id: string, payload: Partial<TFaculty>) => {
   return { updatedFaculty };
 };
 
+const deleteFacultyFromDB = async (id: string) => {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    const deletedUser = await User.findOneAndUpdate(
+      { id },
+      { isDeleted: true },
+      { new: true, session },
+    );
+    if (!deletedUser) throw new AppError(status.NOT_FOUND, "User not found");
+    const deletedFaculty = await Faculty.findOneAndUpdate(
+      { id },
+      { isDeleted: true },
+      { new: true, session },
+    );
+    if (!deletedFaculty)
+      throw new AppError(status.NOT_FOUND, "Faculty not found");
+
+    await session.commitTransaction();
+    return { deletedUser, deletedFaculty };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
+  }
+};
+
 export const FacultyServices = {
   getAllFacultiesFromDB,
   getFacultyByIdFromDB,
   updateFacultyIntoDB,
+  deleteFacultyFromDB,
 };
