@@ -12,6 +12,19 @@ const getAllFaculties = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const getFacultyById = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await FacultyServices.getFacultyByIdFromDB(id);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Faculty retrieved successfully",
+    data: result,
+  });
+});
+
 export const FacultyControllers = {
   getAllFaculties,
+  getFacultyById,
 };

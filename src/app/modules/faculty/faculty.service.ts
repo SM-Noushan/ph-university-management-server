@@ -18,6 +18,17 @@ const getAllFacultiesFromDB = async (query: Record<string, unknown>) => {
   return result;
 };
 
+const getFacultyByIdFromDB = async (id: string) => {
+  const result = await Faculty.findOne({ id }).populate({
+    path: "academicDepartment",
+    populate: {
+      path: "academicFaculty",
+    },
+  });
+  return result;
+};
+
 export const FacultyServices = {
   getAllFacultiesFromDB,
+  getFacultyByIdFromDB,
 };
