@@ -6,13 +6,23 @@ import AppError from "../../errors/AppError";
 import { TStudent } from "./student.interface";
 import flattenNestedObjects from "./student.utility";
 
+const studentSearchableFields = ["email", "name.firstName", "presentAddress"];
+
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-  const searchTerm = query?.searchTerm || "";
-  const result = await Student.find({
-    $or: ["email", "name.firstName", "presentAddress"].map((field: string) => ({
+  const modifiedQueryObj = { ...query };
+  console.log("base query", query);
+  const searchTerm: string = (query?.searchTerm as string) || "";
+  const searchQuery = Student.find({
+    $or: studentSearchableFields.map((field: string) => ({
       [field]: { $regex: searchTerm, $options: "i" },
     })),
-  })
+  });
+  // filtering
+  const excludeFields = ["searchTerm", "sort", "limit", "skip"];
+  excludeFields.forEach(field => delete modifiedQueryObj[field]);
+  const sort: string = (query?.sort as string) || "-createdAt";
+  const filterQuery = searchQuery
+    .find(modifiedQueryObj)
     .populate("admissionSemester")
     .populate({
       path: "academicDepartment",
@@ -20,7 +30,13 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
         path: "academicFaculty",
       },
     });
-  return result;
+  const sortQuery = filterQuery.sort(sort);
+  const limit: number = (query?.limit as number) || 10;
+  const limitQuery = sortQuery.limit(limit);
+  const skip: number = (query?.skip as number) || 0;
+  const skipQuery = await limitQuery.skip(skip);
+
+  return skipQuery;
 };
 
 const getStudentByIdFromDB = async (id: string) => {
