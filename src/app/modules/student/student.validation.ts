@@ -123,9 +123,10 @@ import {
   address,
   alphaString,
   contactNo,
-  ObjectIdValidationSchema,
   trimmedString,
+  ObjectIdValidationSchema,
 } from "../../utils/validation";
+import { BloodGroupsEnum, GenderEnum } from "../../constants";
 
 // Define reusable components for sub-schemas
 export const userNameValidationSchema = z.object({
@@ -162,7 +163,7 @@ export const CreateStudentValidationSchema = z.object({
       .optional(),
     student: z.object({
       name: userNameValidationSchema,
-      gender: z.enum(["male", "female"]),
+      gender: z.enum(GenderEnum as [string]),
       dateOfBirth: z
         .string()
         .optional()
@@ -173,9 +174,7 @@ export const CreateStudentValidationSchema = z.object({
       email: trimmedString.email(),
       contactNo: contactNo,
       emergencyContactNo: contactNo,
-      // bloodGroup: z
-      //   .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
-      //   .optional(),
+      bloodGroup: z.enum(BloodGroupsEnum as [string]).optional(),
       presentAddress: address,
       permanentAddress: address,
       guardian: guardianValidationSchema,

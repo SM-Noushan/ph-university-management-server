@@ -1,13 +1,12 @@
 import { Schema, model } from "mongoose";
 import {
-  TGuardian,
-  TLocalGuardian,
   TStudent,
   // StudentMethods,
   StudentModel,
-  TUserName,
 } from "./student.interface";
 import validator from "validator";
+import { BloodGroupsEnum, GenderEnum } from "../../constants";
+import { TGuardian, TLocalGuardian, TUserName } from "../../interface";
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -105,7 +104,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     gender: {
       type: String,
       enum: {
-        values: ["male", "female"],
+        values: GenderEnum,
         message: "{VALUE} is not supported as a gender",
       },
       required: [true, "Gender is required"],
@@ -150,13 +149,13 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: String,
       required: [true, "Emergency contact number is required"],
     },
-    // bloodGroup: {
-    //   type: String,
-    //   enum: {
-    //     values: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
-    //     message: "{VALUE} is not supported as a blood group",
-    //   },
-    // },
+    bloodGroup: {
+      type: String,
+      enum: {
+        values: BloodGroupsEnum,
+        message: "{VALUE} is not supported as a blood group",
+      },
+    },
     presentAddress: {
       type: String,
       required: [true, "Present address is required"],
@@ -208,5 +207,10 @@ studentSchema.statics.isStudentExist = async function (id: string) {
   const existingStudent = await this.findOne({ id });
   return existingStudent;
 };
+
+studentSchema.pre(["find", "findOne"], function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
 
 export const Student = model<TStudent, StudentModel>("Student", studentSchema);

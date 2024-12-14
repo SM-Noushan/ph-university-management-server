@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import status from "http-status";
+import { User } from "./user.model";
 import AppError from "../../errors/AppError";
 import { Student } from "../student/student.model";
 import { AcademicSemester } from "../academicSemester/academicSemester.model";
@@ -18,10 +19,26 @@ const findLastStudentId = async (semesterId: Types.ObjectId) => {
   return parseInt(lastUser?.[0]?.id?.substring(6)) || 0;
 };
 
+const findLastFacultyOrAdminId = async (role: string) => {
+  const lastUser = await User.findOne({
+    role,
+  })
+    .select("-_id id")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return parseInt(lastUser?.id ? lastUser?.id?.substring(2) : "0");
+};
+
 export const generateStudentId = async (semesterId: Types.ObjectId) => {
   const academicSemester = await findSemesterInfo(semesterId);
   if (!academicSemester)
     throw new AppError(status.NOT_FOUND, "Academic semester not found");
   const lastStudentId = await findLastStudentId(semesterId);
   return `${academicSemester.year}${academicSemester.code}${(lastStudentId + 1).toString().padStart(4, "0")}`;
+};
+
+export const generateFacultyOrAdminId = async (role: "faculty" | "admin") => {
+  const lastFacultyOrAdminId = await findLastFacultyOrAdminId(role);
+  return `${role === "faculty" ? "F" : "A"}-${(lastFacultyOrAdminId + 1).toString().padStart(4, "0")}`;
 };
