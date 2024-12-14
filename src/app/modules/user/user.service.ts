@@ -8,6 +8,7 @@ import validateDoc from "../../utils/validateDoc";
 import { Faculty } from "../faculty/faculty.model";
 import { Student } from "../student/student.model";
 import { TStudent } from "../student/student.interface";
+import { TFaculty } from "../faculty/faculty.interface";
 import { generateFacultyOrAdminId, generateStudentId } from "./user.utils";
 import { AcademicDepartment } from "../academicDepartment/academicDepartment.model";
 
@@ -63,7 +64,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   // const result = await student.save();
 };
 
-const createFacultyIntoDB = async (password: string, payload: TStudent) => {
+const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
   const userData: Pick<TUser, "id" | "password" | "role"> = {
     id: "",
     password: password || (config.defaultPassword as string),
@@ -92,7 +93,7 @@ const createFacultyIntoDB = async (password: string, payload: TStudent) => {
     }
 
     await session.commitTransaction();
-    return { student: newFaculty, user: newUser };
+    return { faculty: newFaculty, user: newUser };
   } catch (error) {
     await session.abortTransaction();
     throw error;

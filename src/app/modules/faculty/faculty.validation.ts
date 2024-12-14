@@ -1,10 +1,10 @@
 import { z } from "zod";
 import {
   address,
-  alphaString,
   contactNo,
+  alphaString,
   trimmedString,
-  ObjectIdValidationSchema,
+  validObjectId,
 } from "../../utils/validation";
 import { BloodGroupsEnum, GenderEnum } from "../../constants";
 import { userNameValidationSchema } from "../student/student.validation";
@@ -37,7 +37,7 @@ const CreateFacultyValidationSchema = z.object({
       presentAddress: address,
       permanentAddress: address,
       profileImg: trimmedString.url().optional(),
-      academicDepartment: ObjectIdValidationSchema,
+      academicDepartment: validObjectId,
     }),
   }),
 });

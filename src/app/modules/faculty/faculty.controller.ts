@@ -24,7 +24,22 @@ const getFacultyById = catchAsync(async (req, res) => {
   });
 });
 
+const updateFaculty = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await FacultyServices.updateFacultyIntoDB(
+    id,
+    req.body.faculty,
+  );
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Faculty updated successfully",
+    data: result,
+  });
+});
+
 export const FacultyControllers = {
   getAllFaculties,
   getFacultyById,
+  updateFaculty,
 };
