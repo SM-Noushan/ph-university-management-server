@@ -126,7 +126,7 @@ import {
   trimmedString,
   ObjectIdValidationSchema,
 } from "../../utils/validation";
-import { BloodGroupsEnum, GenderEnum } from "../../constants";
+import { BloodGroupEnum, GenderEnum } from "../../constants";
 
 // Define reusable components for sub-schemas
 export const userNameValidationSchema = z.object({
@@ -174,7 +174,7 @@ export const CreateStudentValidationSchema = z.object({
       email: trimmedString.email(),
       contactNo: contactNo,
       emergencyContactNo: contactNo,
-      bloodGroup: z.enum(BloodGroupsEnum as [string]).optional(),
+      bloodGroup: z.enum(BloodGroupEnum as [string]).optional(),
       presentAddress: address,
       permanentAddress: address,
       guardian: guardianValidationSchema,

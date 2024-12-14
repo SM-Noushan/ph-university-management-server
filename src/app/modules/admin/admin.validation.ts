@@ -4,13 +4,12 @@ import {
   contactNo,
   alphaString,
   trimmedString,
-  validObjectId,
 } from "../../utils/validation";
 import { BloodGroupEnum, GenderEnum } from "../../constants";
 import { userNameValidationSchema } from "../student/student.validation";
 
-// Define the main Faculty schema
-const CreateFacultyValidationSchema = z.object({
+// Define the main Admin schema
+const CreateAdminValidationSchema = z.object({
   body: z.object({
     password: z
       .string({
@@ -19,7 +18,7 @@ const CreateFacultyValidationSchema = z.object({
       .max(20, { message: "Max 20 characters" })
       .min(6, { message: "Min 6 characters" })
       .optional(),
-    faculty: z.object({
+    admin: z.object({
       designation: alphaString,
       name: userNameValidationSchema,
       gender: z.enum(GenderEnum as [string]),
@@ -37,19 +36,17 @@ const CreateFacultyValidationSchema = z.object({
       presentAddress: address,
       permanentAddress: address,
       profileImg: trimmedString.url().optional(),
-      academicDepartment: validObjectId,
     }),
   }),
 });
 
-const UpdateFacultyValidationSchema = z.object({
+const UpdateAdminValidationSchema = z.object({
   body: z.object({
-    faculty:
-      CreateFacultyValidationSchema.shape.body.shape.faculty.deepPartial(),
+    admin: CreateAdminValidationSchema.shape.body.shape.admin.deepPartial(),
   }),
 });
 
-export const FacultyValidations = {
-  CreateFacultyValidationSchema,
-  UpdateFacultyValidationSchema,
+export const AdminValidations = {
+  CreateAdminValidationSchema,
+  UpdateAdminValidationSchema,
 };

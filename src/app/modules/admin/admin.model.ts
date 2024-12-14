@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { TUserName } from "../../interface";
-import { TFaculty } from "./faculty.interface";
 import { BloodGroupEnum, GenderEnum } from "../../constants";
+import { TAdmin } from "./admin.interface";
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -17,11 +17,11 @@ const userNameSchema = new Schema<TUserName>({
   },
 });
 
-const facultySchema = new Schema<TFaculty>(
+const adminSchema = new Schema<TAdmin>(
   {
     id: {
       type: String,
-      required: [true, "Faculty ID is required"],
+      required: [true, "Admin ID is required"],
       unique: true,
     },
     user: {
@@ -36,7 +36,7 @@ const facultySchema = new Schema<TFaculty>(
     },
     name: {
       type: userNameSchema,
-      required: [true, "Faculty name is required"],
+      required: [true, "Admin name is required"],
     },
     gender: {
       type: String,
@@ -80,11 +80,6 @@ const facultySchema = new Schema<TFaculty>(
     profileImg: {
       type: String,
     },
-    academicDepartment: {
-      type: Schema.Types.ObjectId,
-      ref: "AcademicDepartment",
-      required: [true, "Admission department is required"],
-    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -95,14 +90,14 @@ const facultySchema = new Schema<TFaculty>(
   },
 );
 
-facultySchema.pre(["find", "findOne"], function (next) {
+adminSchema.pre(["find", "findOne"], function (next) {
   this.find({ isDeleted: { $ne: true } });
   next();
 });
 
-facultySchema.pre("aggregate", function (next) {
+adminSchema.pre("aggregate", function (next) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
   next();
 });
 
-export const Faculty = model<TFaculty>("Faculty", facultySchema);
+export const Admin = model<TAdmin>("Admin", adminSchema);

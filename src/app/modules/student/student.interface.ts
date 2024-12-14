@@ -1,8 +1,8 @@
 import {
-  TGenders,
+  TGender,
   TGuardian,
   TUserName,
-  TBloodGroups,
+  TBloodGroup,
   TLocalGuardian,
 } from "../../interface";
 import { Model, Types } from "mongoose";
@@ -11,12 +11,12 @@ export type TStudent = {
   id: string;
   user: Types.ObjectId;
   name: TUserName;
-  gender: TGenders;
+  gender: TGender;
   dateOfBirth?: Date;
   email: string;
   contactNo: string;
   emergencyContactNo: string;
-  bloodGroup?: TBloodGroups;
+  bloodGroup?: TBloodGroup;
   presentAddress: string;
   permanentAddress: string;
   guardian: TGuardian;

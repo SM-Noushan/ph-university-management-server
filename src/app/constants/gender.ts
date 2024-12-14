@@ -1,3 +1,3 @@
-import { TGenders } from "../interface";
+import { TGender } from "../interface";
 
-export const GenderEnum: TGenders[] = ["male", "female"];
+export const GenderEnum: TGender[] = ["male", "female"];

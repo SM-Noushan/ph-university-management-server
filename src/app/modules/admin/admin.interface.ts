@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
-import { TGender, TUserName, TBloodGroup } from "../../interface";
+import { TBloodGroup, TGender, TUserName } from "../../interface";
 
-export type TFaculty = {
+export type TAdmin = {
   id: string;
   user: Types.ObjectId;
   designation: string;
@@ -15,6 +15,5 @@ export type TFaculty = {
   presentAddress: string;
   permanentAddress: string;
   profileImg?: string;
-  academicDepartment: Types.ObjectId;
   isDeleted: boolean;
 };

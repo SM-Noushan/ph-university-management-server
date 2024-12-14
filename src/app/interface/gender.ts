@@ -1,1 +1,1 @@
-export type TGenders = "male" | "female";
+export type TGender = "male" | "female";

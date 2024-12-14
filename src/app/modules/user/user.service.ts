@@ -5,12 +5,14 @@ import { User } from "./user.model";
 import { TUser } from "./user.interface";
 import AppError from "../../errors/AppError";
 import validateDoc from "../../utils/validateDoc";
+import { TAdmin } from "../admin/admin.interface";
 import { Faculty } from "../faculty/faculty.model";
 import { Student } from "../student/student.model";
 import { TStudent } from "../student/student.interface";
 import { TFaculty } from "../faculty/faculty.interface";
 import { generateFacultyOrAdminId, generateStudentId } from "./user.utils";
 import { AcademicDepartment } from "../academicDepartment/academicDepartment.model";
+import { Admin } from "../admin/admin.model";
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   // custom static method
@@ -102,4 +104,42 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
   }
 };
 
-export const UserServices = { createStudentIntoDB, createFacultyIntoDB };
+const createAdminIntoDB = async (password: string, payload: TAdmin) => {
+  const userData: Pick<TUser, "id" | "password" | "role"> = {
+    id: "",
+    password: password || (config.defaultPassword as string),
+    role: "admin",
+  };
+  userData.id = await generateFacultyOrAdminId("admin");
+
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    // create user
+    const newUser = await User.create([userData], { session });
+    // create admin
+    if (!newUser.length)
+      throw new AppError(status.BAD_REQUEST, "Failed to create user");
+
+    payload.user = newUser[0]._id;
+    payload.id = newUser[0].id;
+    const newAdmin = await Admin.create([payload], { session });
+    if (!newAdmin.length) {
+      throw new AppError(status.BAD_REQUEST, "Failed to create admin");
+    }
+
+    await session.commitTransaction();
+    return { admin: newAdmin, user: newUser };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
+  }
+};
+
+export const UserServices = {
+  createStudentIntoDB,
+  createFacultyIntoDB,
+  createAdminIntoDB,
+};

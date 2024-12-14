@@ -5,7 +5,7 @@ import {
   StudentModel,
 } from "./student.interface";
 import validator from "validator";
-import { BloodGroupsEnum, GenderEnum } from "../../constants";
+import { BloodGroupEnum, GenderEnum } from "../../constants";
 import { TGuardian, TLocalGuardian, TUserName } from "../../interface";
 
 const userNameSchema = new Schema<TUserName>({
@@ -152,7 +152,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     bloodGroup: {
       type: String,
       enum: {
-        values: BloodGroupsEnum,
+        values: BloodGroupEnum,
         message: "{VALUE} is not supported as a blood group",
       },
     },

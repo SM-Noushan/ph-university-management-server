@@ -1,4 +1,4 @@
-export type TBloodGroups =
+export type TBloodGroup =
   | "A+"
   | "A-"
   | "B+"

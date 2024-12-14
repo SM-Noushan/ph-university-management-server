@@ -1,6 +1,6 @@
-import { TBloodGroups } from "../interface";
+import { TBloodGroup } from "../interface";
 
-export const BloodGroupsEnum: TBloodGroups[] = [
+export const BloodGroupEnum: TBloodGroup[] = [
   "A+",
   "A-",
   "B+",
