@@ -24,7 +24,15 @@ class QueryBuilder<T> {
     const filterQueryObj = { ...this.query };
     const excludeFields = ["searchTerm", "sort", "limit", "page", "fields"];
     excludeFields.forEach(field => delete filterQueryObj[field]);
-    this.modelQuery = this.modelQuery.find(filterQueryObj);
+
+    const caseInsensitiveFilter: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(filterQueryObj)) {
+      caseInsensitiveFilter[key] = {
+        $regex: `^${value}$`,
+        $options: "i",
+      };
+    }
+    this.modelQuery = this.modelQuery.find(caseInsensitiveFilter);
     return this;
   }
 
