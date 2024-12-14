@@ -1,5 +1,6 @@
 import express from "express";
 import { UserRoutes } from "../modules/user/user.route";
+import { AdminRoutes } from "../modules/admin/admin.route";
 import { StudentRoutes } from "../modules/student/student.route";
 import { FacultyRoutes } from "../modules/faculty/faculty.route";
 import { AcademicFacultyRoutes } from "../modules/academicFaculty/academicFaculty.route";
@@ -16,6 +17,10 @@ const moduleRoutes = [
   {
     path: "/faculties",
     route: FacultyRoutes,
+  },
+  {
+    path: "/admins",
+    route: AdminRoutes,
   },
   {
     path: "/users",
