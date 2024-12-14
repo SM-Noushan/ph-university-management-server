@@ -21,19 +21,19 @@ const getAllAdminsFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getAdminByIdFromDB = async (id: string) => {
-  const result = await Admin.findOne({ id });
+  const result = await Admin.findById(id);
   return result;
 };
 
 const updateAdminIntoDB = async (id: string, payload: Partial<TAdmin>) => {
   await validateDoc({
     model: Admin,
-    query: { id },
+    query: { _id: id },
     errMsg: "Admin not found",
   });
 
-  const updatedAdmin = await Admin.findOneAndUpdate(
-    { id },
+  const updatedAdmin = await Admin.findByIdAndUpdate(
+    id,
     flattenNestedObjects(payload),
     {
       new: true,
@@ -48,21 +48,21 @@ const deleteAdminFromDB = async (id: string) => {
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    const deletedUser = await User.findOneAndUpdate(
-      { id },
-      { isDeleted: true },
-      { new: true, session },
-    );
-    if (!deletedUser) throw new AppError(status.NOT_FOUND, "User not found");
-    const deletedAdmin = await Admin.findOneAndUpdate(
-      { id },
+    const deletedAdmin = await Admin.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
     if (!deletedAdmin) throw new AppError(status.NOT_FOUND, "Admin not found");
+    const deletedUser = await User.findByIdAndUpdate(
+      deletedAdmin.user,
+      { isDeleted: true },
+      { new: true, session },
+    );
+    if (!deletedUser) throw new AppError(status.NOT_FOUND, "User not found");
 
     await session.commitTransaction();
-    return { deletedUser, deletedAdmin };
+    return { deletedAdmin, deletedUser };
   } catch (error) {
     await session.abortTransaction();
     throw error;

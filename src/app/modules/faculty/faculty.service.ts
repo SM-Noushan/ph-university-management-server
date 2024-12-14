@@ -27,7 +27,7 @@ const getAllFacultiesFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getFacultyByIdFromDB = async (id: string) => {
-  const result = await Faculty.findOne({ id }).populate({
+  const result = await Faculty.findById(id).populate({
     path: "academicDepartment",
     populate: {
       path: "academicFaculty",
@@ -39,7 +39,7 @@ const getFacultyByIdFromDB = async (id: string) => {
 const updateFacultyIntoDB = async (id: string, payload: Partial<TFaculty>) => {
   await validateDoc({
     model: Faculty,
-    query: { id },
+    query: { _id: id },
     errMsg: "Faculty not found",
   });
 
@@ -50,8 +50,8 @@ const updateFacultyIntoDB = async (id: string, payload: Partial<TFaculty>) => {
       errMsg: "Academic department does not exists",
     });
 
-  const updatedFaculty = await Faculty.findOneAndUpdate(
-    { id },
+  const updatedFaculty = await Faculty.findByIdAndUpdate(
+    id,
     flattenNestedObjects(payload),
     {
       new: true,
@@ -66,22 +66,22 @@ const deleteFacultyFromDB = async (id: string) => {
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    const deletedUser = await User.findOneAndUpdate(
-      { id },
-      { isDeleted: true },
-      { new: true, session },
-    );
-    if (!deletedUser) throw new AppError(status.NOT_FOUND, "User not found");
-    const deletedFaculty = await Faculty.findOneAndUpdate(
-      { id },
+    const deletedFaculty = await Faculty.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
     if (!deletedFaculty)
       throw new AppError(status.NOT_FOUND, "Faculty not found");
+    const deletedUser = await User.findByIdAndUpdate(
+      deletedFaculty.user,
+      { isDeleted: true },
+      { new: true, session },
+    );
+    if (!deletedUser) throw new AppError(status.NOT_FOUND, "User not found");
 
     await session.commitTransaction();
-    return { deletedUser, deletedFaculty };
+    return { deletedFaculty, deletedUser };
   } catch (error) {
     await session.abortTransaction();
     throw error;

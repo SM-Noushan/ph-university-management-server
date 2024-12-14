@@ -4,4 +4,5 @@ export const FacultySearchableFields = [
   "name.middleName",
   "name.LastName",
   "designation",
+  "id",
 ];
