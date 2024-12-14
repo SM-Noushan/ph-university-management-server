@@ -4,9 +4,9 @@ import { Student } from "./student.model";
 import { User } from "../user/user.model";
 import AppError from "../../errors/AppError";
 import { TStudent } from "./student.interface";
-import flattenNestedObjects from "./student.utility";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { studentSearchableFields } from "./student.constant";
+import flattenNestedObjects from "../../utils/flattenNestedObjects";
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   const studentQuery = new QueryBuilder(Student.find(), query)
