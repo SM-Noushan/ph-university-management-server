@@ -39,7 +39,7 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
     message,
     errorSources,
     stack: process.env.NODE_ENV === "development" ? error.stack : "🥞",
-    myError: error,
+    // myError: error,
   });
 };
 

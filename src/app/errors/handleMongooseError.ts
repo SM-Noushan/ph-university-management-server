@@ -9,7 +9,7 @@ const handleMongooseValidationError = (
     (val: mongoose.Error.ValidatorError | mongoose.Error.CastError) => {
       return {
         path: val?.path,
-        message: val?.kind,
+        message: val?.message,
       };
     },
   );

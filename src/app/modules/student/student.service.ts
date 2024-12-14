@@ -6,8 +6,13 @@ import AppError from "../../errors/AppError";
 import { TStudent } from "./student.interface";
 import flattenNestedObjects from "./student.utility";
 
-const getAllStudentsFromDB = async () => {
-  const result = await Student.find()
+const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+  const searchTerm = query?.searchTerm || "";
+  const result = await Student.find({
+    $or: ["email", "name.firstName", "presentAddress"].map((field: string) => ({
+      [field]: { $regex: searchTerm, $options: "i" },
+    })),
+  })
     .populate("admissionSemester")
     .populate({
       path: "academicDepartment",
