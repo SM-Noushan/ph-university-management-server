@@ -5,6 +5,10 @@ import { SemesterRegistrationControllers } from "./semesterRegistration.controll
 
 const semesterRegistrationRouter = express.Router();
 
+semesterRegistrationRouter.get(
+  "/",
+  SemesterRegistrationControllers.getAllSemesterRegistration,
+);
 semesterRegistrationRouter.post(
   "/create-semester-registration",
   validateRequest(
