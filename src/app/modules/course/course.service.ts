@@ -154,7 +154,26 @@ const assignCourseFacultiesIntoDB = async (
       new: true,
       runValidators: true,
     },
-  ).populate("faculties");
+  );
+  return result;
+};
+
+const deleteCourseFacultiesFromDB = async (id: string, faculties: string[]) => {
+  await validateDoc({
+    model: CourseFaculty,
+    query: { _id: id },
+    errMsg: "CourseFaculty does not exist",
+  });
+
+  const result = await CourseFaculty.findByIdAndUpdate(
+    id,
+    {
+      $pull: { faculties: { $in: faculties } },
+    },
+    {
+      new: true,
+    },
+  );
   return result;
 };
 
@@ -165,4 +184,5 @@ export const CourseServices = {
   updateCourseIntoDB,
   deleteCourseFromDB,
   assignCourseFacultiesIntoDB,
+  deleteCourseFacultiesFromDB,
 };

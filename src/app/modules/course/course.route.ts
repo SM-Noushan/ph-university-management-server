@@ -23,5 +23,10 @@ courseRouter.put(
   validateRequest(CourseValidations.AssignFacultiesToCourseValidationSchema),
   CourseControllers.assignCourseFaculties,
 );
+courseRouter.delete(
+  "/remove-faculties/:courseId",
+  validateRequest(CourseValidations.AssignFacultiesToCourseValidationSchema),
+  CourseControllers.deleteCourseFaculties,
+);
 
 export const CourseRoutes = courseRouter;
