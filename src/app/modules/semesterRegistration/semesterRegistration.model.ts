@@ -1,6 +1,5 @@
+import { model, Schema } from "mongoose";
 import validateDoc from "../../utils/validateDoc";
-import { Document, model, Query, Schema } from "mongoose";
-import catchAsyncRefined from "../../utils/catchAsyncRefined";
 import { TSemesterRegistration } from "./semesterRegistration.interface";
 import { AcademicSemester } from "../academicSemester/academicSemester.model";
 import { SemesterRegistrationStatusEnum } from "./semesterRegistration.constant";
@@ -41,34 +40,24 @@ const semesterRegistrationSchema = new Schema<TSemesterRegistration>(
 semesterRegistrationSchema.pre("save", async function (next) {
   try {
     await validateDoc({
-      model: AcademicSemester,
-      query: { _id: this.academicSemester },
-      errMsg: "Invalid academicSemester ID",
+      model: SemesterRegistration,
+      query: { academicSemester: this.academicSemester },
+      errMsg: "Academic semester is already registered",
+      trueValidate: false,
     });
-    next();
-  } catch (error) {
-    next(error as Error);
-  }
-});
 
-semesterRegistrationSchema.pre(
-  "save",
-  catchAsyncRefined(async function (
-    this: Document & TSemesterRegistration,
-    next,
-  ) {
     await validateDoc({
       model: AcademicSemester,
       query: { _id: this.academicSemester },
       errMsg: "Invalid academicSemester ID",
     });
-    next();
-  }),
-);
+  } catch (error) {
+    next(error as Error);
+  }
+});
 
-semesterRegistrationSchema.pre(
-  "findOneAndUpdate",
-  catchAsyncRefined(async function (this: Query<unknown, Document>, next) {
+semesterRegistrationSchema.pre("findOneAndUpdate", async function (next) {
+  try {
     const update = this.getUpdate() as Record<string, unknown>;
     if (update?.academicSemester) {
       await validateDoc({
@@ -78,8 +67,10 @@ semesterRegistrationSchema.pre(
       });
     }
     next();
-  }),
-);
+  } catch (error) {
+    next(error as Error);
+  }
+});
 
 export const SemesterRegistration = model<TSemesterRegistration>(
   "SemesterRegistration",
