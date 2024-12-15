@@ -24,14 +24,31 @@ class QueryBuilder<T> {
     const filterQueryObj = { ...this.query };
     const excludeFields = ["searchTerm", "sort", "limit", "page", "fields"];
     excludeFields.forEach(field => delete filterQueryObj[field]);
-
     const caseInsensitiveFilter: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(filterQueryObj)) {
-      caseInsensitiveFilter[key] = {
-        $regex: `^${value}$`,
-        $options: "i",
-      };
+      // Skip empty strings
+      if (typeof value === "string" && value.trim() === "") continue;
+
+      // Numeric strings (like "123", "-45") are converted to numbers
+      if (
+        typeof value === "string" &&
+        !Number.isNaN(Number(value)) &&
+        value.trim() !== ""
+      )
+        caseInsensitiveFilter[key] = Number(value);
+      // Direct numbers are added
+      else if (typeof value === "number" && !Number.isNaN(value))
+        caseInsensitiveFilter[key] = value;
+      // Non-empty strings are handled with regex for case-insensitive match
+      else if (typeof value === "string")
+        caseInsensitiveFilter[key] = {
+          $regex: `^${value}$`,
+          $options: "i",
+        };
+      // Skip null, undefined, and other types
+      else continue;
     }
+
     this.modelQuery = this.modelQuery.find(caseInsensitiveFilter);
     return this;
   }
