@@ -20,5 +20,12 @@ semesterRegistrationRouter.post(
   ),
   SemesterRegistrationControllers.createSemesterRegistration,
 );
+semesterRegistrationRouter.patch(
+  "/:id",
+  validateRequest(
+    SemesterRegistrationValidations.UpdateSemesterRegistrationValidationSchema,
+  ),
+  SemesterRegistrationControllers.updateSemesterRegistration,
+);
 
 export const SemesterRegistrationRoutes = semesterRegistrationRouter;

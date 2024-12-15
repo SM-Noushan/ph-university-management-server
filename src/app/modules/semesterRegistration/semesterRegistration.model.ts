@@ -65,6 +65,15 @@ semesterRegistrationSchema.pre("findOneAndUpdate", async function (next) {
         query: { _id: update.academicSemester },
         errMsg: "Update Failed: Invalid academicSemester ID",
       });
+      await validateDoc({
+        model: SemesterRegistration,
+        query: {
+          academicSemester: update.academicSemester,
+          _id: { $ne: this.getFilter()?._id },
+        },
+        errMsg: "Update Failed: Academic semester is already registered",
+        trueValidate: false,
+      });
     }
     next();
   } catch (error) {
