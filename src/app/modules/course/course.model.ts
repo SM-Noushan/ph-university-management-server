@@ -46,6 +46,62 @@ const courseSchema = new Schema<TCourse>(
   },
 );
 
+async function validatePreRequisiteCourses(
+  preRequisiteCourses: TPreRequisiteCourses[] = [],
+): Promise<void> {
+  if (preRequisiteCourses.length > 0) {
+    // Remove duplicate entries based on the `course` field
+    const uniqueCourses = Array.from(
+      new Map(
+        preRequisiteCourses.map(prereq => [prereq.course.toString(), prereq]),
+      ).values(),
+    );
+
+    // Extract unique course IDs
+    const courseIds = uniqueCourses.map(prereq => prereq.course);
+
+    // Validate if all referenced courses exist
+    const count = await Course.countDocuments({
+      _id: { $in: courseIds },
+      isDeleted: { $ne: true },
+    });
+
+    if (count !== courseIds.length) {
+      throw new Error(
+        "One or more prerequisite courses are invalid or do not exist.",
+      );
+    }
+  }
+}
+
+// Pre-hook for saving
+courseSchema.pre("save", async function (next) {
+  try {
+    await validatePreRequisiteCourses(this.preRequisiteCourses || []);
+    next();
+  } catch (error) {
+    next(error as Error);
+  }
+});
+
+// Pre-hook for updating
+courseSchema.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate() as Partial<TCourse>;
+
+  if (update.preRequisiteCourses && Array.isArray(update.preRequisiteCourses)) {
+    try {
+      await validatePreRequisiteCourses(
+        update.preRequisiteCourses as TPreRequisiteCourses[],
+      );
+      next();
+    } catch (error) {
+      next(error as Error);
+    }
+  } else {
+    next();
+  }
+});
+
 courseSchema.pre(["find", "findOne"], function (next) {
   this.find({ isDeleted: { $ne: true } });
   next();
