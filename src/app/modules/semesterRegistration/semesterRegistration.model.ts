@@ -41,6 +41,14 @@ semesterRegistrationSchema.pre("save", async function (next) {
   try {
     await validateDoc({
       model: SemesterRegistration,
+      query: { $or: [{ status: "ONGOING" }, { status: "UPCOMING" }] },
+      errMsg:
+        "There is already an ongoing or upcoming semester. Cannot create new one",
+      trueValidate: false,
+    });
+
+    await validateDoc({
+      model: SemesterRegistration,
       query: { academicSemester: this.academicSemester },
       errMsg: "Academic semester is already registered",
       trueValidate: false,
