@@ -18,5 +18,10 @@ courseRouter.patch(
   CourseControllers.updateCourse,
 );
 courseRouter.delete("/:id", CourseControllers.deleteCourse);
+courseRouter.put(
+  "/assign-faculties/:courseId",
+  validateRequest(CourseValidations.AssignFacultiesToCourseValidationSchema),
+  CourseControllers.assignCourseFaculties,
+);
 
 export const CourseRoutes = courseRouter;

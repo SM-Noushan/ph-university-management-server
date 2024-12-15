@@ -1,9 +1,14 @@
+import {
+  Course,
+  CourseFaculty,
+  validatePreRequisiteCourses,
+} from "./course.model";
 import mongoose from "mongoose";
-import QueryBuilder from "../../builder/QueryBuilder";
-import validateDoc from "../../utils/validateDoc";
-import { CourseSearchableFields } from "./course.constant";
 import { TCourse } from "./course.interface";
-import { Course, validatePreRequisiteCourses } from "./course.model";
+import validateDoc from "../../utils/validateDoc";
+import { Faculty } from "../faculty/faculty.model";
+import QueryBuilder from "../../builder/QueryBuilder";
+import { CourseSearchableFields } from "./course.constant";
 
 const getAllCoursesFromDB = async (query: Record<string, unknown>) => {
   const courseQuery = new QueryBuilder(Course.find(), query)
@@ -117,10 +122,47 @@ const deleteCourseFromDB = async (id: string) => {
   return result;
 };
 
+const assignCourseFacultiesIntoDB = async (
+  course: string,
+  faculties: string[],
+) => {
+  await validateDoc({
+    model: Course,
+    query: { _id: course },
+    errMsg: "Course does not exist",
+  });
+  await Promise.all(
+    [...new Set(faculties)].map(async faculty => {
+      await validateDoc({
+        model: Faculty,
+        query: {
+          _id: faculty,
+        },
+        errMsg: "One or more faculty does not exist",
+      });
+    }),
+  );
+
+  const result = await CourseFaculty.findOneAndUpdate(
+    { course },
+    {
+      $setOnInsert: { course },
+      $addToSet: { faculties: { $each: faculties } },
+    },
+    {
+      upsert: true,
+      new: true,
+      runValidators: true,
+    },
+  ).populate("faculties");
+  return result;
+};
+
 export const CourseServices = {
   getAllCoursesFromDB,
   getCourseByIdFromDB,
   createCourseIntoDB,
   updateCourseIntoDB,
   deleteCourseFromDB,
+  assignCourseFacultiesIntoDB,
 };
