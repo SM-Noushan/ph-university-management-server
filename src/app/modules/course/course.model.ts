@@ -46,7 +46,7 @@ const courseSchema = new Schema<TCourse>(
   },
 );
 
-async function validatePreRequisiteCourses(
+export async function validatePreRequisiteCourses(
   preRequisiteCourses: TPreRequisiteCourses[] = [],
 ): Promise<void> {
   if (preRequisiteCourses.length > 0) {
@@ -81,24 +81,6 @@ courseSchema.pre("save", async function (next) {
     next();
   } catch (error) {
     next(error as Error);
-  }
-});
-
-// Pre-hook for updating
-courseSchema.pre("findOneAndUpdate", async function (next) {
-  const update = this.getUpdate() as Partial<TCourse>;
-
-  if (update.preRequisiteCourses && Array.isArray(update.preRequisiteCourses)) {
-    try {
-      await validatePreRequisiteCourses(
-        update.preRequisiteCourses as TPreRequisiteCourses[],
-      );
-      next();
-    } catch (error) {
-      next(error as Error);
-    }
-  } else {
-    next();
   }
 });
 
