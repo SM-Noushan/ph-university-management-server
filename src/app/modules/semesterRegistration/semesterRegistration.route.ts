@@ -9,6 +9,10 @@ semesterRegistrationRouter.get(
   "/",
   SemesterRegistrationControllers.getAllSemesterRegistration,
 );
+semesterRegistrationRouter.get(
+  "/:id",
+  SemesterRegistrationControllers.getSemesterRegistrationById,
+);
 semesterRegistrationRouter.post(
   "/create-semester-registration",
   validateRequest(
