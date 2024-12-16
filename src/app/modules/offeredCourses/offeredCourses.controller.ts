@@ -3,6 +3,28 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { OfferedCourseServices } from "./offeredCourses.service";
 
+const getAllOfferedCourses = catchAsync(async (req, res) => {
+  const result = await OfferedCourseServices.getAllOfferedCoursesFromDB();
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "OfferedCourses retrieved successfully",
+    data: result,
+  });
+});
+
+const getSingleOfferedCourseById = catchAsync(async (req, res) => {
+  const result = await OfferedCourseServices.getOfferedCourseByIdFromDB(
+    req.params.id,
+  );
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "OfferedCourse retrieved successfully",
+    data: result,
+  });
+});
+
 const createOfferedCourse = catchAsync(async (req, res) => {
   const result = await OfferedCourseServices.createOfferedCourseIntoDB(
     req.body.offeredCourse,
@@ -41,6 +63,8 @@ const deleteOfferedCourse = catchAsync(async (req, res) => {
 });
 
 export const OfferedCourseControllers = {
+  getAllOfferedCourses,
+  getSingleOfferedCourseById,
   createOfferedCourse,
   updateOfferedCourse,
   deleteOfferedCourse,

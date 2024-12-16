@@ -5,6 +5,11 @@ import { OfferedCourseControllers } from "./offeredCourses.controller";
 
 const offeredCourseRouter = express.Router();
 
+offeredCourseRouter.get("/", OfferedCourseControllers.getAllOfferedCourses);
+offeredCourseRouter.get(
+  "/:id",
+  OfferedCourseControllers.getSingleOfferedCourseById,
+);
 offeredCourseRouter.post(
   "/create-offered-course",
   validateRequest(OfferedCourseValidations.CreateOfferedCourseValidationSchema),

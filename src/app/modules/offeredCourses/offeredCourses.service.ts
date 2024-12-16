@@ -12,6 +12,18 @@ import { TAcademicDepartment } from "../academicDepartment/academicDepartment.in
 import { SemesterRegistration } from "./../semesterRegistration/semesterRegistration.model";
 import { TSemesterRegistration } from "../semesterRegistration/semesterRegistration.interface";
 
+const getAllOfferedCoursesFromDB = async () => {
+  const result = await OfferedCourse.find();
+  return result;
+};
+
+const getOfferedCourseByIdFromDB = async (id: string) => {
+  const result = await OfferedCourse.findById(id).populate(
+    "semesterRegistration academicSemester academicFaculty academicDepartment course faculty",
+  );
+  return result;
+};
+
 const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
   const {
     semesterRegistration,
@@ -235,6 +247,8 @@ const deleteOfferedCourseFromDB = async (id: string) => {
 };
 
 export const OfferedCourseServices = {
+  getAllOfferedCoursesFromDB,
+  getOfferedCourseByIdFromDB,
   createOfferedCourseIntoDB,
   updateOfferedCourseIntoDB,
   deleteOfferedCourseFromDB,
