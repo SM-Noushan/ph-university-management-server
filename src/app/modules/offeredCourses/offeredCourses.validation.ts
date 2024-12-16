@@ -23,8 +23,8 @@ const CreateOfferedCourseValidationSchema = z.object({
       })
       .refine(
         body => {
-          const start = new Date(`1970-01-01T${body.startTime}:00`);
-          const end = new Date(`1970-01-01T${body.endTime}:00`);
+          const start = new Date(`1970-01-01T${body.startTime}:00Z`);
+          const end = new Date(`1970-01-01T${body.endTime}:00Z`);
           return end > start;
         },
         {
@@ -55,8 +55,8 @@ const UpdateOfferedCourseValidationSchema = z.object({
 
           // If both are present, validate that startTime is before endTime
           if (hasStartTime && hasEndTime) {
-            const start = new Date(`1970-01-01T${body.startTime}:00`);
-            const end = new Date(`1970-01-01T${body.endTime}:00`);
+            const start = new Date(`1970-01-01T${body.startTime}:00Z`);
+            const end = new Date(`1970-01-01T${body.endTime}:00Z`);
             return end > start;
           }
 

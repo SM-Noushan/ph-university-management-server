@@ -117,17 +117,13 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
     days: { $in: days },
   }).select("days startTime endTime");
   const newSchedule = { days, startTime, endTime };
-  const newStartTime = new Date(`2000-26-07-T${newSchedule.startTime}:00`);
-  const newEndTime = new Date(`2000-26-07-T${newSchedule.endTime}:00`);
+  const newStartTime = new Date(`2000-07-26T${newSchedule.startTime}:00Z`);
+  const newEndTime = new Date(`2000-07-26T${newSchedule.endTime}:00Z`);
 
   assignedSchedules.forEach(schedule => {
-    const existingStartTime = new Date(`2000-26-07-T${schedule.startTime}:00`);
-    const existingEndTime = new Date(`2000-26-07-T${schedule.endTime}:00`);
-
-    if (
-      (newStartTime > existingStartTime && newStartTime < existingEndTime) ||
-      (newEndTime > existingStartTime && newEndTime < existingEndTime)
-    )
+    const existingStartTime = new Date(`2000-07-26T${schedule.startTime}:00Z`);
+    const existingEndTime = new Date(`2000-07-26T${schedule.endTime}:00Z`);
+    if (newStartTime < existingEndTime && newEndTime > existingStartTime)
       throw new AppError(400, "Faculty is not available at that time");
   });
 
