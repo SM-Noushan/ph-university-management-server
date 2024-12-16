@@ -149,14 +149,14 @@ const updateOfferedCourseIntoDB = async (
     errMsg: "Offered course not found",
   });
 
-  //   check if the semester is ongoing
+  //   check if the semester is upcoming
   const semesterRegistration = await SemesterRegistration.findById(
     offeredCOurseDoc?.semesterRegistration,
   );
-  if (semesterRegistration?.status === "ENDED")
+  if (semesterRegistration?.status !== "UPCOMING")
     throw new AppError(
       400,
-      "Offered course can not be updated for ENDED semester",
+      "Offered course can only be updated for UPCOMING semester",
     );
 
   //   check if faculty id is exists
@@ -206,7 +206,36 @@ const updateOfferedCourseIntoDB = async (
   return result;
 };
 
+const deleteOfferedCourseFromDB = async (id: string) => {
+  /**
+   * Step 1: check if the offered course exists
+   * Step 2: check if the semester registration status is upcoming
+   * Step 3: delete the offered course
+   */
+  //   check if the offered course exists!
+  const offeredCOurseDoc = await validateDoc<TOfferedCourse>({
+    model: OfferedCourse,
+    query: { _id: id },
+    errMsg: "Offered course not found",
+  });
+
+  //   check if the semester is upcoming
+  const semesterRegistration = await SemesterRegistration.findById(
+    offeredCOurseDoc?.semesterRegistration,
+  );
+  if (semesterRegistration?.status !== "UPCOMING")
+    throw new AppError(
+      400,
+      "Offered course can only be deleted for UPCOMING semester",
+    );
+
+  const result = await OfferedCourse.findByIdAndDelete(id);
+
+  return result;
+};
+
 export const OfferedCourseServices = {
   createOfferedCourseIntoDB,
   updateOfferedCourseIntoDB,
+  deleteOfferedCourseFromDB,
 };

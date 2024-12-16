@@ -15,5 +15,9 @@ offeredCourseRouter.patch(
   validateRequest(OfferedCourseValidations.UpdateOfferedCourseValidationSchema),
   OfferedCourseControllers.updateOfferedCourse,
 );
+offeredCourseRouter.delete(
+  "/:id",
+  OfferedCourseControllers.deleteOfferedCourse,
+);
 
 export const OfferedCourseRoutes = offeredCourseRouter;
