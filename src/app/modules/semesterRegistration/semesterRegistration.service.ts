@@ -1,11 +1,13 @@
-import { Document } from "mongoose";
 import {
   TSemesterRegistration,
   TSemesterRegistrationStatus,
 } from "./semesterRegistration.interface";
 import AppError from "../../errors/AppError";
+import mongoose, { Document } from "mongoose";
+import validateDoc from "../../utils/validateDoc";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { SemesterRegistration } from "./semesterRegistration.model";
+import { OfferedCourse } from "../offeredCourses/offeredCourses.model";
 
 // utility
 const validateSemesterUpdate = (
@@ -109,9 +111,39 @@ const updateSemesterRegistrationIntoDB = async (
   return updatedSemesterRegistration;
 };
 
+const deleteSemesterRegistrationFromDB = async (id: string) => {
+  // Find the requested semester registration
+  const requestedSemesterRegistration = await validateDoc({
+    model: SemesterRegistration,
+    query: { _id: id },
+    errMsg: "Semester registration not found",
+  });
+
+  if (requestedSemesterRegistration?.status !== "UPCOMING") {
+    throw new AppError(
+      404,
+      "Only UPCOMING semester registrations can be deleted",
+    );
+  }
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    await OfferedCourse.deleteMany({ semesterRegistration: id }, { session });
+    await SemesterRegistration.findByIdAndDelete(id, { session });
+    await session.commitTransaction();
+    return { deletedSemesterRegistration: requestedSemesterRegistration };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
+  }
+};
+
 export const SemesterRegistrationServices = {
   getAllSemesterRegistrationsFromDB,
   getSemesterRegistrationByIdFromDB,
   createSemesterRegistrationIntoDB,
   updateSemesterRegistrationIntoDB,
+  deleteSemesterRegistrationFromDB,
 };
