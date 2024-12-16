@@ -6,9 +6,9 @@ import {
 } from "../../utils/validation";
 import { DaysEnum } from "./offeredCourses.constant";
 
-const CreateOfferedCoursesValidationSchema = z.object({
+const CreateOfferedCourseValidationSchema = z.object({
   body: z.object({
-    offeredCourses: z
+    offeredCourse: z
       .object({
         semesterRegistration: validObjectId,
         academicFaculty: validObjectId,
@@ -34,9 +34,9 @@ const CreateOfferedCoursesValidationSchema = z.object({
   }),
 });
 
-const UpdateOfferedCoursesValidationSchema = z.object({
+const UpdateOfferedCourseValidationSchema = z.object({
   body: z.object({
-    offeredCourses: z
+    offeredCourse: z
       .object({
         faculty: validObjectId.optional(),
         maxCapacity: z.number().optional(),
@@ -71,7 +71,7 @@ const UpdateOfferedCoursesValidationSchema = z.object({
   }),
 });
 
-export const OfferedCoursesValidations = {
-  CreateOfferedCoursesValidationSchema,
-  UpdateOfferedCoursesValidationSchema,
+export const OfferedCourseValidations = {
+  CreateOfferedCourseValidationSchema,
+  UpdateOfferedCourseValidationSchema,
 };

@@ -4,7 +4,7 @@ import AppError from "../errors/AppError";
 
 interface ValidateDocOptions<T> {
   model: Model<T>;
-  query: object;
+  query: Record<string, unknown>;
   errMsg?: string;
   trueValidate?: boolean;
 }
@@ -21,20 +21,21 @@ const validateDoc = async <T>({
   query,
   errMsg = "",
   trueValidate = true,
-}: ValidateDocOptions<T>): Promise<void> => {
-  const exists = await model.exists(query);
+}: ValidateDocOptions<T>): Promise<T | null> => {
+  const doc = await model.findOne(query);
 
-  if (trueValidate && !exists)
+  if (trueValidate && !doc)
     throw new AppError(
       status.NOT_FOUND,
       errMsg || "Ref/Document does not exist.",
     );
 
-  if (!trueValidate && exists)
+  if (!trueValidate && doc)
     throw new AppError(
       status.CONFLICT,
       errMsg || "Ref/Document already exists.",
     );
+  return doc;
 };
 
 export default validateDoc;

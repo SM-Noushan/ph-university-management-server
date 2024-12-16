@@ -1,8 +1,8 @@
 import { model, Schema } from "mongoose";
 import { DaysEnum } from "./offeredCourses.constant";
-import { TOfferedCourses } from "./offeredCourses.interface";
+import { TOfferedCourse } from "./offeredCourses.interface";
 
-const offeredCoursesSchema = new Schema<TOfferedCourses>(
+const OfferedCourseSchema = new Schema<TOfferedCourse>(
   {
     semesterRegistration: {
       type: Schema.Types.ObjectId,
@@ -42,11 +42,13 @@ const offeredCoursesSchema = new Schema<TOfferedCourses>(
       type: String,
       required: true,
     },
-    days: {
-      type: String,
-      enum: DaysEnum,
-      required: true,
-    },
+    days: [
+      {
+        type: String,
+        enum: DaysEnum,
+        required: true,
+      },
+    ],
     startTime: {
       type: String,
       required: true,
@@ -61,7 +63,7 @@ const offeredCoursesSchema = new Schema<TOfferedCourses>(
   },
 );
 
-export const OfferedCourses = model<TOfferedCourses>(
-  "OfferedCourses",
-  offeredCoursesSchema,
+export const OfferedCourse = model<TOfferedCourse>(
+  "OfferedCourse",
+  OfferedCourseSchema,
 );
