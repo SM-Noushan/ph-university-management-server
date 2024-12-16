@@ -1,15 +1,16 @@
 import { Types } from "mongoose";
-import { SemesterRegistration } from "./../semesterRegistration/semesterRegistration.model";
-import validateDoc from "../../utils/validateDoc";
-import { AcademicFaculty } from "../academicFaculty/academicFaculty.model";
-import { TOfferedCourse } from "./offeredCourses.interface";
-import { OfferedCourse } from "./offeredCourses.model";
 import AppError from "../../errors/AppError";
-import { TSemesterRegistration } from "../semesterRegistration/semesterRegistration.interface";
+import validateDoc from "../../utils/validateDoc";
+import { Faculty } from "../faculty/faculty.model";
+import { OfferedCourse } from "./offeredCourses.model";
+import { TOfferedCourse } from "./offeredCourses.interface";
+import { Course, CourseFaculty } from "../course/course.model";
+import { hasTimeConflict, TSchedule } from "./offeredCourses.utils";
+import { AcademicFaculty } from "../academicFaculty/academicFaculty.model";
 import { AcademicDepartment } from "../academicDepartment/academicDepartment.model";
 import { TAcademicDepartment } from "../academicDepartment/academicDepartment.interface";
-import { Course, CourseFaculty } from "../course/course.model";
-import { Faculty } from "../faculty/faculty.model";
+import { SemesterRegistration } from "./../semesterRegistration/semesterRegistration.model";
+import { TSemesterRegistration } from "../semesterRegistration/semesterRegistration.interface";
 
 const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
   const {
@@ -23,7 +24,6 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
     startTime,
     endTime,
   } = payload;
-  //   console.log(payload);
   /**
    * Step 1: check if the semester registration id is exists!
    * Step 2: check if the semester has ended!
@@ -111,21 +111,15 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
   });
 
   //   get the schedules of the faculties
-  const assignedSchedules = await OfferedCourse.find({
+  const assignedSchedules = (await OfferedCourse.find({
     semesterRegistration,
     faculty,
     days: { $in: days },
-  }).select("days startTime endTime");
+  }).select("-_id days startTime endTime")) as TSchedule[];
   const newSchedule = { days, startTime, endTime };
-  const newStartTime = new Date(`2000-07-26T${newSchedule.startTime}:00Z`);
-  const newEndTime = new Date(`2000-07-26T${newSchedule.endTime}:00Z`);
-
-  assignedSchedules.forEach(schedule => {
-    const existingStartTime = new Date(`2000-07-26T${schedule.startTime}:00Z`);
-    const existingEndTime = new Date(`2000-07-26T${schedule.endTime}:00Z`);
-    if (newStartTime < existingEndTime && newEndTime > existingStartTime)
-      throw new AppError(400, "Faculty is not available at that time");
-  });
+  const hasTimeConflictResult = hasTimeConflict(assignedSchedules, newSchedule);
+  if (hasTimeConflictResult)
+    throw new AppError(400, "Faculty is not available at that time");
 
   const result = await OfferedCourse.create({
     ...payload,
