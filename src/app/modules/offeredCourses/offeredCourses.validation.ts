@@ -38,34 +38,20 @@ const UpdateOfferedCourseValidationSchema = z.object({
   body: z.object({
     offeredCourse: z
       .object({
-        faculty: validObjectId.optional(),
-        maxCapacity: z.number().optional(),
-        days: z.array(z.enum(DaysEnum as [string])).optional(),
-        startTime: timeStringSchema.optional(),
-        endTime: timeStringSchema.optional(),
+        faculty: validObjectId,
+        maxCapacity: z.number(),
+        days: z.array(z.enum(DaysEnum as [string])),
+        startTime: timeStringSchema,
+        endTime: timeStringSchema,
       })
       .refine(
         body => {
-          // Ensure both startTime and endTime are either present or missing
-          const hasStartTime = !!body.startTime;
-          const hasEndTime = !!body.endTime;
-
-          // If one is present but the other is missing, it's invalid
-          if (hasStartTime !== hasEndTime) return false;
-
-          // If both are present, validate that startTime is before endTime
-          if (hasStartTime && hasEndTime) {
-            const start = new Date(`1970-01-01T${body.startTime}:00Z`);
-            const end = new Date(`1970-01-01T${body.endTime}:00Z`);
-            return end > start;
-          }
-
-          // If both are missing, it's valid
-          return true;
+          const start = new Date(`1970-01-01T${body.startTime}:00Z`);
+          const end = new Date(`1970-01-01T${body.endTime}:00Z`);
+          return end > start;
         },
         {
-          message:
-            "Either both startTime and endTime must be provided or neither.",
+          message: "Start time should be before End time!",
         },
       ),
   }),

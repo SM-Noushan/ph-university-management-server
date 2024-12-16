@@ -128,6 +128,85 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
   return result;
 };
 
+const updateOfferedCourseIntoDB = async (
+  id: string,
+  payload: Partial<TOfferedCourse>,
+) => {
+  const { faculty, days, startTime, endTime } = payload;
+  /**
+   * Step 1: check if offered course exist!
+   * Step 2: check if the semester is ongoing!
+   * Step 3: check if the faculty id is exists!
+   * Step 4: check if the faculty is eligible for the offer the course
+   * Step 5: get the schedules of the faculties and check if there is a time conflict
+   * Step 6: update the offered course
+   */
+
+  //   check if the offered course exists!
+  const offeredCOurseDoc = await validateDoc<TOfferedCourse>({
+    model: OfferedCourse,
+    query: { _id: id },
+    errMsg: "Offered course not found",
+  });
+
+  //   check if the semester is ongoing
+  const semesterRegistration = await SemesterRegistration.findById(
+    offeredCOurseDoc?.semesterRegistration,
+  );
+  if (semesterRegistration?.status === "ENDED")
+    throw new AppError(
+      400,
+      "Offered course can not be updated for ENDED semester",
+    );
+
+  //   check if faculty id is exists
+  await validateDoc({
+    model: Faculty,
+    query: { _id: faculty },
+    errMsg: "Faculty not found",
+  });
+
+  //check if the faculty is eligible for the offer the course
+  await validateDoc({
+    model: CourseFaculty,
+    query: {
+      course: offeredCOurseDoc?.course,
+      faculties: faculty,
+    },
+    errMsg: "Faculty is not eligible to take the course",
+  });
+
+  //   get the schedules of the faculties
+  if (
+    !offeredCOurseDoc?.faculty?.equals(faculty) ||
+    JSON.stringify(days) !== JSON.stringify(offeredCOurseDoc?.days) ||
+    startTime !== offeredCOurseDoc?.startTime ||
+    endTime !== offeredCOurseDoc?.endTime
+  ) {
+    const assignedSchedules = (await OfferedCourse.find({
+      _id: { $ne: id },
+      semesterRegistration: offeredCOurseDoc?.semesterRegistration,
+      faculty,
+      days: { $in: days },
+    }).select("-_id days startTime endTime")) as TSchedule[];
+
+    const newSchedule = { days, startTime, endTime } as TSchedule;
+
+    const hasTimeConflictResult = hasTimeConflict(
+      assignedSchedules,
+      newSchedule,
+    );
+    if (hasTimeConflictResult)
+      throw new AppError(400, "Faculty is not available at that time");
+  }
+
+  const result = await OfferedCourse.findByIdAndUpdate(id, payload, {
+    new: true,
+  });
+  return result;
+};
+
 export const OfferedCourseServices = {
   createOfferedCourseIntoDB,
+  updateOfferedCourseIntoDB,
 };
