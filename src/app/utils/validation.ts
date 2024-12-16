@@ -51,3 +51,14 @@ export const address = trimmedString.min(
   5,
   "Address must be at least 5 characters long",
 );
+
+export const timeStringSchema = trimmedString.refine(
+  time => {
+    // 00-09 10-19 20-23 : 00-59  (24 hours format)
+    const regex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    return regex.test(time);
+  },
+  {
+    message: 'Invalid time format , expected "HH:MM" in 24 hours format',
+  },
+);
