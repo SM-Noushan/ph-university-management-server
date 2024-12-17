@@ -17,5 +17,5 @@ export interface UserModel extends Model<TUser> {
   isUserDeleted: (user: TUser) => Promise<void>;
   isUserBlocked: (user: TUser) => Promise<void>;
   isPasswordMatched: (user: TUser, password: string) => Promise<void>;
-  validateUser: (payload: TLoginUser) => Promise<void>;
+  validateUser: (payload: TLoginUser) => Promise<TUser>;
 }

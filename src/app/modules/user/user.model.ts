@@ -84,6 +84,7 @@ userSchema.statics.validateUser = async function (payload: TLoginUser) {
   await this.isUserDeleted(userInfo);
   await this.isUserBlocked(userInfo);
   await this.isPasswordMatched(userInfo, payload.password);
+  return userInfo;
 };
 
 export const User = model<TUser, UserModel>("User", userSchema);
