@@ -10,8 +10,9 @@ import { TLoginUser } from "../auth/auth.interface";
 const userSchema = new Schema<TUser, UserModel>(
   {
     id: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     needsPasswordChange: { type: Boolean, required: true, default: true },
+    passwordChangedAt: { type: Date },
     role: {
       type: String,
       enum: {
@@ -57,6 +58,7 @@ userSchema.statics.isUserExistsByCustomId = async function (id: string) {
     model: this,
     query: { id },
     errMsg: "!Invalid credentials.",
+    select: "+password",
   });
 };
 //   check if user is deleted

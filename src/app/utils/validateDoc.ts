@@ -7,6 +7,7 @@ interface ValidateDocOptionsBase<T> {
   model: Model<T>;
   query: Record<string, unknown>;
   errMsg?: string;
+  select?: string;
   trueValidate?: boolean;
 }
 
@@ -32,8 +33,9 @@ async function validateDoc<T>({
   query,
   errMsg = "",
   trueValidate = true,
+  select = "",
 }: ValidateDocOptionsBase<T>): Promise<T | null> {
-  const doc = await model.findOne(query);
+  const doc = await model.findOne(query).select(select);
 
   if (trueValidate && !doc)
     throw new AppError(

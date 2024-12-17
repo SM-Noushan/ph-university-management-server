@@ -8,6 +8,14 @@ const loginValidationSchema = z.object({
   }),
 });
 
+const passwordValidationSchema = z.object({
+  body: z.object({
+    oldPassword: z.string(),
+    newPassword: z.string(),
+  }),
+});
+
 export const AuthValidation = {
   loginValidationSchema,
+  passwordValidationSchema,
 };
