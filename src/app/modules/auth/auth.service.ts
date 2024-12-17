@@ -1,6 +1,6 @@
-import jwt from "jsonwebtoken";
 import config from "../../config";
 import { Document } from "mongoose";
+import createToken from "./auth.utils";
 import { User } from "../user/user.model";
 import { TUser } from "../user/user.interface";
 import { TLoginUser, TPasswordChange } from "./auth.interface";
@@ -9,18 +9,23 @@ const loginUser = async (payload: TLoginUser) => {
   // validate user => check if user exists, is deleted, is blocked, and password is correct
   const userInfo = await User.validateUser({ payload });
   //   create toke and return to client
-  const accessToken = jwt.sign(
-    {
-      userId: userInfo.id,
-      role: userInfo.role,
-    },
+  const accessToken = createToken(
+    userInfo,
     config.JwtAccessSecret as string,
-    {
-      expiresIn: "10d",
-    },
+    config.JwtAccessExpiration as string,
   );
 
-  return { accessToken, needsPasswordChange: userInfo.needsPasswordChange };
+  const refreshToken = createToken(
+    userInfo,
+    config.JwtRefreshSecret as string,
+    config.JwtRefreshExpiration as string,
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+    needsPasswordChange: userInfo.needsPasswordChange,
+  };
 };
 
 const changeUserPassword = async (
