@@ -2,6 +2,7 @@ import config from "../../config";
 import { Document } from "mongoose";
 import createToken from "./auth.utils";
 import { User } from "../user/user.model";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { TUser } from "../user/user.interface";
 import { TLoginUser, TPasswordChange } from "./auth.interface";
 
@@ -45,4 +46,26 @@ const changeUserPassword = async (
   return null;
 };
 
-export const AuthServices = { loginUser, changeUserPassword };
+const refreshToken = async (token: string) => {
+  const decoded = jwt.verify(
+    token,
+    config.JwtRefreshSecret as string,
+  ) as JwtPayload;
+  const { role, userId, iat } = decoded;
+  // validate user => check if user exists, is authorized, is deleted, is blocked
+  await User.validateUser({
+    payload: { id: userId, password: "", iat: iat },
+    checkIsJWTIssuedBeforePasswordChanged: true,
+    checkIsPasswordMatched: false,
+  });
+
+  const accessToken = createToken(
+    { id: userId, role },
+    config.JwtAccessSecret as string,
+    config.JwtAccessExpiration as string,
+  );
+
+  return { accessToken };
+};
+
+export const AuthServices = { loginUser, changeUserPassword, refreshToken };
