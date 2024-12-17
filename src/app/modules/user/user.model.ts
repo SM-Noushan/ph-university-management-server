@@ -5,7 +5,6 @@ import { model, Schema } from "mongoose";
 import AppError from "../../errors/AppError";
 import validateDoc from "../../utils/validateDoc";
 import { TUser, UserModel } from "./user.interface";
-import { TLoginUser } from "../auth/auth.interface";
 
 const userSchema = new Schema<TUser, UserModel>(
   {
@@ -61,13 +60,24 @@ userSchema.statics.isUserExistsByCustomId = async function (id: string) {
     select: "+password",
   });
 };
+//   check if jwt is issued before password changed
+userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
+  passwordChangeTimestamp,
+  jwtIssuedTimestamp,
+) {
+  if (
+    parseInt((new Date(passwordChangeTimestamp).getTime() / 1000).toString()) >
+    jwtIssuedTimestamp
+  )
+    throw new AppError(status.UNAUTHORIZED, "Unauthorized access");
+};
 //   check if user is deleted
-userSchema.statics.isUserDeleted = async function (userInfo: TUser) {
+userSchema.statics.isUserDeleted = function (userInfo: TUser) {
   if (userInfo.isDeleted)
     throw new AppError(status.FORBIDDEN, "!Account deleted. !!Access denied");
 };
 //  check if user id blocked
-userSchema.statics.isUserBlocked = async function (userInfo: TUser) {
+userSchema.statics.isUserBlocked = function (userInfo: TUser) {
   if (userInfo?.status === "blocked")
     throw new AppError(status.FORBIDDEN, "!Blocked. !!Access denied");
 };
@@ -81,11 +91,23 @@ userSchema.statics.isPasswordMatched = async function (
     throw new AppError(status.UNAUTHORIZED, "!Invalid credentials");
 };
 // validate user => check if user exists, is deleted, is blocked, and password is correct
-userSchema.statics.validateUser = async function (payload: TLoginUser) {
+userSchema.statics.validateUser = async function ({
+  payload,
+  checkIsDeleted = true,
+  checkIsBlocked = true,
+  checkIsPasswordMatched = true,
+  checkIsJWTIssuedBeforePasswordChanged = false,
+}) {
   const userInfo = await this.isUserExistsByCustomId(payload.id);
-  await this.isUserDeleted(userInfo);
-  await this.isUserBlocked(userInfo);
-  await this.isPasswordMatched(userInfo, payload.password);
+  if (checkIsJWTIssuedBeforePasswordChanged && userInfo?.passwordChangedAt)
+    this.isJWTIssuedBeforePasswordChanged(
+      userInfo?.passwordChangedAt,
+      payload.iat,
+    );
+  if (checkIsDeleted) this.isUserDeleted(userInfo);
+  if (checkIsBlocked) this.isUserBlocked(userInfo);
+  if (checkIsPasswordMatched)
+    await this.isPasswordMatched(userInfo, payload.password);
   return userInfo;
 };
 

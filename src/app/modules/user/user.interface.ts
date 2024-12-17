@@ -13,13 +13,31 @@ export interface TUser {
   isDeleted: boolean;
 }
 
+interface iValidateUserOptions {
+  payload: TLoginUser & { iat?: number };
+  checkIsDeleted?: boolean;
+  checkIsBlocked?: boolean;
+  checkIsPasswordMatched?: boolean;
+  checkIsJWTIssuedBeforePasswordChanged?: boolean;
+}
+
 // custom methods here
 export interface UserModel extends Model<TUser> {
   isUserExistsByCustomId(id: string): Promise<TUser>;
   isUserDeleted: (user: TUser) => Promise<void>;
   isUserBlocked: (user: TUser) => Promise<void>;
   isPasswordMatched: (user: TUser, password: string) => Promise<void>;
-  validateUser: (payload: TLoginUser) => Promise<TUser>;
+  isJWTIssuedBeforePasswordChanged: (
+    passwordChangeTimestamp: Date,
+    jwtIssuedTimestamp: number,
+  ) => Promise<void>;
+  validateUser: ({
+    payload,
+    checkIsDeleted,
+    checkIsBlocked,
+    checkIsPasswordMatched,
+    checkIsJWTIssuedBeforePasswordChanged,
+  }: iValidateUserOptions) => Promise<TUser>;
 }
 
 export type TUserRole = keyof typeof USER_ROLE;

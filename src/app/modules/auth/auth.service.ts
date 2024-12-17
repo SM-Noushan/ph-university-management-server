@@ -7,7 +7,7 @@ import { TLoginUser, TPasswordChange } from "./auth.interface";
 
 const loginUser = async (payload: TLoginUser) => {
   // validate user => check if user exists, is deleted, is blocked, and password is correct
-  const userInfo = await User.validateUser(payload);
+  const userInfo = await User.validateUser({ payload });
   //   create toke and return to client
   const accessToken = jwt.sign(
     {
@@ -29,8 +29,7 @@ const changeUserPassword = async (
 ) => {
   // validate user => check if user exists, is deleted, is blocked, and password is correct
   const userInfo = (await User.validateUser({
-    id: userData.userId,
-    password: payload.oldPassword,
+    payload: { id: userData.userId, password: payload.oldPassword },
   })) as unknown as Document & TUser;
   // update password
   userInfo.password = payload.newPassword;
