@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Model } from "mongoose";
+import { USER_ROLE } from "./user.constant";
 import { TLoginUser } from "../auth/auth.interface";
 
 export interface TUser {
@@ -19,3 +20,5 @@ export interface UserModel extends Model<TUser> {
   isPasswordMatched: (user: TUser, password: string) => Promise<void>;
   validateUser: (payload: TLoginUser) => Promise<TUser>;
 }
+
+export type TUserRole = keyof typeof USER_ROLE;
