@@ -16,12 +16,18 @@ router.post(
   "/change-password",
   auth(USER_ROLE.admin, USER_ROLE.faculty, USER_ROLE.student),
   validateRequest(AuthValidation.passwordValidationSchema),
-  AuthController.changeUserPassword,
+  AuthController.changePassword,
 );
 router.post(
   "/refresh-token",
   validateRequest(AuthValidation.refreshTokenValidationSchema),
   AuthController.refreshToken,
+);
+router.post(
+  "/forget-password",
+  // auth(USER_ROLE.admin, USER_ROLE.faculty, USER_ROLE.student),
+  validateRequest(AuthValidation.forgetPasswordValidationSchema),
+  AuthController.forgetPassword,
 );
 
 export const AuthRoutes = router;

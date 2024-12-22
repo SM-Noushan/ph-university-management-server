@@ -29,7 +29,7 @@ const loginUser = async (payload: TLoginUser) => {
   };
 };
 
-const changeUserPassword = async (
+const changePassword = async (
   userData: { userId: string; role: string },
   payload: TPasswordChange,
 ) => {
@@ -68,4 +68,26 @@ const refreshToken = async (token: string) => {
   return { accessToken };
 };
 
-export const AuthServices = { loginUser, changeUserPassword, refreshToken };
+const forgetPassword = async (id: string) => {
+  // validate user => check if user exists, is deleted, and is blocked
+  const userInfo = await User.validateUser({
+    payload: { id, password: "" },
+    checkIsPasswordMatched: false,
+  });
+
+  const accessToken = createToken(
+    userInfo,
+    config.JwtAccessSecret as string,
+    "10m",
+  );
+
+  const resetUILink = `http://localhost:5000?id=${userInfo.id}&token=${accessToken}`;
+  return resetUILink;
+};
+
+export const AuthServices = {
+  loginUser,
+  changePassword,
+  refreshToken,
+  forgetPassword,
+};
