@@ -75,13 +75,13 @@ const forgetPassword = async (id: string) => {
     checkIsPasswordMatched: false,
   });
 
-  const accessToken = createToken(
+  const resetToken = createToken(
     userInfo,
     config.JwtAccessSecret as string,
     "10m",
   );
 
-  const resetUILink = `http://localhost:5000?id=${userInfo.id}&token=${accessToken}`;
+  const resetUILink = `http://localhost:5000?id=${userInfo.id}&token=${resetToken}`;
   return resetUILink;
 };
 

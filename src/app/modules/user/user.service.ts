@@ -4,6 +4,7 @@ import config from "../../config";
 import { User } from "./user.model";
 import { TUser } from "./user.interface";
 import AppError from "../../errors/AppError";
+import { Admin } from "../admin/admin.model";
 import validateDoc from "../../utils/validateDoc";
 import { TAdmin } from "../admin/admin.interface";
 import { Faculty } from "../faculty/faculty.model";
@@ -12,7 +13,6 @@ import { TStudent } from "../student/student.interface";
 import { TFaculty } from "../faculty/faculty.interface";
 import { generateFacultyOrAdminId, generateStudentId } from "./user.utils";
 import { AcademicDepartment } from "../academicDepartment/academicDepartment.model";
-import { Admin } from "../admin/admin.model";
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   // custom static method
@@ -20,10 +20,11 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   // throw new Error("Student already exists");
   // static method
 
-  const userData: Pick<TUser, "id" | "password" | "role"> = {
+  const userData: Pick<TUser, "id" | "password" | "role" | "email"> = {
     id: "",
     password: password || (config.defaultPassword as string),
     role: "student",
+    email: payload.email,
   };
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -67,10 +68,11 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 };
 
 const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
-  const userData: Pick<TUser, "id" | "password" | "role"> = {
+  const userData: Pick<TUser, "id" | "password" | "role" | "email"> = {
     id: "",
     password: password || (config.defaultPassword as string),
     role: "faculty",
+    email: payload.email,
   };
   userData.id = await generateFacultyOrAdminId("faculty");
   await validateDoc({
@@ -105,10 +107,11 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
 };
 
 const createAdminIntoDB = async (password: string, payload: TAdmin) => {
-  const userData: Pick<TUser, "id" | "password" | "role"> = {
+  const userData: Pick<TUser, "id" | "password" | "role" | "email"> = {
     id: "",
     password: password || (config.defaultPassword as string),
     role: "admin",
+    email: payload.email,
   };
   userData.id = await generateFacultyOrAdminId("admin");
 

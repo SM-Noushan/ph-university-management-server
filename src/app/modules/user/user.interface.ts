@@ -6,6 +6,7 @@ import { TLoginUser } from "../auth/auth.interface";
 export interface TUser {
   id: string;
   password: string;
+  email: string;
   needsPasswordChange: boolean;
   passwordChangedAt?: Date;
   role: "admin" | "faculty" | "student";
