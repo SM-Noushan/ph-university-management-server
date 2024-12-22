@@ -4,6 +4,7 @@ import createToken from "./auth.utils";
 import { User } from "../user/user.model";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { TUser } from "../user/user.interface";
+import { sendEmail } from "../../utils/sendEmail";
 import { TLoginUser, TPasswordChange } from "./auth.interface";
 
 const loginUser = async (payload: TLoginUser) => {
@@ -81,8 +82,10 @@ const forgetPassword = async (id: string) => {
     "10m",
   );
 
-  const resetUILink = `http://localhost:5000?id=${userInfo.id}&token=${resetToken}`;
-  return resetUILink;
+  const resetUILink = `${config.resetPasswordUrl}?id=${userInfo.id}&token=${resetToken}`;
+
+  sendEmail(userInfo.email, resetUILink);
+  return null;
 };
 
 export const AuthServices = {

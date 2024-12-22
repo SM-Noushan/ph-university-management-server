@@ -13,4 +13,7 @@ export default {
   JwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   JwtAccessExpiration: process.env.JWT_ACCESS_EXPIRATION,
   JwtRefreshExpiration: process.env.JWT_REFRESH_EXPIRATION,
+  transporterEmail: process.env.TRANSPORTER_EMAIL,
+  transporterPassword: process.env.TRANSPORTER_PASSWORD,
+  resetPasswordUrl: process.env.RESET_PASSWORD_URL,
 };
