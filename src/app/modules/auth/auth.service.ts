@@ -1,7 +1,9 @@
+import status from "http-status";
 import config from "../../config";
 import { Document } from "mongoose";
 import createToken from "./auth.utils";
 import { User } from "../user/user.model";
+import AppError from "../../errors/AppError";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { TUser } from "../user/user.interface";
 import { sendEmail } from "../../utils/sendEmail";
@@ -53,7 +55,7 @@ const refreshToken = async (token: string) => {
     config.JwtRefreshSecret as string,
   ) as JwtPayload;
   const { role, userId, iat } = decoded;
-  // validate user => check if user exists, is authorized, is deleted, is blocked
+  // validate user => check if user exists, is authorized, is deleted, is blocked and is token issued before last password change
   await User.validateUser({
     payload: { id: userId, password: "", iat: iat },
     checkIsJWTIssuedBeforePasswordChanged: true,
@@ -88,9 +90,39 @@ const forgetPassword = async (id: string) => {
   return null;
 };
 
+const resetPassword = async (
+  token: string,
+  userData: { id: string; password: string },
+) => {
+  const decoded = jwt.verify(
+    token,
+    config.JwtAccessSecret as string,
+  ) as JwtPayload;
+  const { userId, iat } = decoded;
+
+  // validate user => check if user exists, is authorized, is deleted, is blocked and is token issued before last password change
+  const userInfo = (await User.validateUser({
+    payload: { id: userId, password: "", iat: iat },
+    checkIsJWTIssuedBeforePasswordChanged: true,
+    checkIsPasswordMatched: false,
+  })) as unknown as Document & TUser;
+
+  if (userInfo.id !== userData.id)
+    throw new AppError(status.FORBIDDEN, "Invalid id");
+
+  // reset password
+  userInfo.password = userData.password;
+  if (!userInfo.needsPasswordChange) userInfo.needsPasswordChange = false;
+  userInfo.passwordChangedAt = new Date();
+  await userInfo.save();
+
+  return null;
+};
+
 export const AuthServices = {
   loginUser,
   changePassword,
   refreshToken,
   forgetPassword,
+  resetPassword,
 };
