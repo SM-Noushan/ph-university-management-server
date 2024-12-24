@@ -1,14 +1,15 @@
-import mongoose from "mongoose";
 import status from "http-status";
 import config from "../../config";
 import { User } from "./user.model";
-import { TUser } from "./user.interface";
+import mongoose, { Model } from "mongoose";
+import { USER_ROLE } from "./user.constant";
 import AppError from "../../errors/AppError";
 import { Admin } from "../admin/admin.model";
 import validateDoc from "../../utils/validateDoc";
 import { TAdmin } from "../admin/admin.interface";
 import { Faculty } from "../faculty/faculty.model";
 import { Student } from "../student/student.model";
+import { TUser, TUserRole } from "./user.interface";
 import { TStudent } from "../student/student.interface";
 import { TFaculty } from "../faculty/faculty.interface";
 import { generateFacultyOrAdminId, generateStudentId } from "./user.utils";
@@ -141,8 +142,21 @@ const createAdminIntoDB = async (password: string, payload: TAdmin) => {
   }
 };
 
+const getMe = async (id: string, role: TUserRole) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const roleModelMap: Record<TUserRole, Model<any>> = {
+    [USER_ROLE.admin]: Admin,
+    [USER_ROLE.faculty]: Faculty,
+    [USER_ROLE.student]: Student,
+  };
+  const Model = roleModelMap[role];
+  const result = await Model.findOne({ id }).populate("user");
+  return result;
+};
+
 export const UserServices = {
   createStudentIntoDB,
   createFacultyIntoDB,
   createAdminIntoDB,
+  getMe,
 };

@@ -29,7 +29,7 @@ const auth = (...requiredRoles: TUserRole[]) =>
     if (requiredRoles.length > 0 && !requiredRoles.includes(role))
       throw new AppError(status.FORBIDDEN, "Forbidden access");
 
-    req.user = decoded as JwtPayload;
+    req.user = decoded;
     next();
   });
 

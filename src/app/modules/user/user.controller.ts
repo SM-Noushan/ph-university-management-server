@@ -5,11 +5,6 @@ import sendResponse from "../../utils/sendResponse";
 
 const createStudent = catchAsync(async (req, res) => {
   const { student, password } = req.body;
-  // const { error } = StudentValidationSchema.(studentData);
-  // if (error) throw error?.details;
-  // const { success, data, error } =
-  //   StudentValidationSchema.safeParse(studentData);
-  // if (!success) throw error;
 
   const result = await UserServices.createStudentIntoDB(password, student);
   sendResponse(res, {
@@ -44,8 +39,20 @@ const createAdmin = catchAsync(async (req, res) => {
   });
 });
 
+const getMe = catchAsync(async (req, res) => {
+  const { userId, role } = req.user;
+  const result = await UserServices.getMe(userId, role);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Admin created successfully",
+    data: result,
+  });
+});
+
 export const userControllers = {
   createStudent,
   createFaculty,
   createAdmin,
+  getMe,
 };
