@@ -43,15 +43,16 @@ const userSchema = new Schema<TUser, UserModel>(
 
 // hashing password
 userSchema.pre("save", async function (next) {
-  this.password = await bcrypt.hash(
-    this.password,
-    Number(config.bcryptSaltRounds),
-  );
+  if (this.isModified("password"))
+    this.password = await bcrypt.hash(
+      this.password,
+      Number(config.bcryptSaltRounds),
+    );
   next();
 });
 
 userSchema.post("save", async function (doc, next) {
-  doc.password = "";
+  if (this.isModified("password")) doc.password = "";
   next();
 });
 

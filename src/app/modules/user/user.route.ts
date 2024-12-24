@@ -2,6 +2,7 @@ import express from "express";
 import auth from "../../middlewares/auth";
 import { USER_ROLE } from "./user.constant";
 import { userControllers } from "./user.controller";
+import { UserValidations } from "./user.validation";
 import { AdminValidations } from "../admin/admin.validation";
 import validateRequest from "../../middlewares/validateRequest";
 import { StudentValidations } from "../student/student.validation";
@@ -31,6 +32,12 @@ router.get(
   "/me",
   auth(USER_ROLE.admin, USER_ROLE.faculty, USER_ROLE.student),
   userControllers.getMe,
+);
+router.patch(
+  "/change-status/:id",
+  auth(USER_ROLE.admin),
+  validateRequest(UserValidations.ChangeStatusValidationSchema),
+  userControllers.changeStatus,
 );
 
 export const UserRoutes = router;

@@ -1,7 +1,6 @@
 import status from "http-status";
 import config from "../../config";
 import { User } from "./user.model";
-import mongoose, { Model } from "mongoose";
 import { USER_ROLE } from "./user.constant";
 import AppError from "../../errors/AppError";
 import { Admin } from "../admin/admin.model";
@@ -10,6 +9,7 @@ import { TAdmin } from "../admin/admin.interface";
 import { Faculty } from "../faculty/faculty.model";
 import { Student } from "../student/student.model";
 import { TUser, TUserRole } from "./user.interface";
+import mongoose, { Model, Document } from "mongoose";
 import { TStudent } from "../student/student.interface";
 import { TFaculty } from "../faculty/faculty.interface";
 import { generateFacultyOrAdminId, generateStudentId } from "./user.utils";
@@ -154,9 +154,29 @@ const getMe = async (id: string, role: TUserRole) => {
   return result;
 };
 
+const changeStatus = async (
+  id: string,
+  userStatus: "in-progress" | "blocked",
+) => {
+  const user = (await validateDoc({
+    model: User,
+    query: { _id: id },
+    errMsg: "User does not exists",
+  })) as TUser & Document;
+  if (user.status === userStatus)
+    throw new AppError(
+      status.BAD_REQUEST,
+      `User is already in this status - ${userStatus}`,
+    );
+  user.status = userStatus;
+  await user.save();
+  return user;
+};
+
 export const UserServices = {
   createStudentIntoDB,
   createFacultyIntoDB,
   createAdminIntoDB,
   getMe,
+  changeStatus,
 };
