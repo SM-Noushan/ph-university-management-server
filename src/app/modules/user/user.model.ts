@@ -52,7 +52,7 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.post("save", async function (doc, next) {
-  if (this.isModified("password")) doc.password = "";
+  if (this.password) doc.password = "";
   next();
 });
 

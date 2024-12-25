@@ -6,7 +6,7 @@ import sendResponse from "../../utils/sendResponse";
 const createStudent = catchAsync(async (req, res) => {
   const { student, password = "" } = req.body;
   const result = await UserServices.createStudentIntoDB(
-    req.file as object,
+    req.file,
     password,
     student,
   );
@@ -19,9 +19,13 @@ const createStudent = catchAsync(async (req, res) => {
 });
 
 const createFaculty = catchAsync(async (req, res) => {
-  const { faculty, password } = req.body;
+  const { faculty, password = "" } = req.body;
 
-  const result = await UserServices.createFacultyIntoDB(password, faculty);
+  const result = await UserServices.createFacultyIntoDB(
+    req.file,
+    password,
+    faculty,
+  );
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
@@ -31,9 +35,13 @@ const createFaculty = catchAsync(async (req, res) => {
 });
 
 const createAdmin = catchAsync(async (req, res) => {
-  const { admin, password } = req.body;
+  const { admin, password = "" } = req.body;
 
-  const result = await UserServices.createAdminIntoDB(password, admin);
+  const result = await UserServices.createAdminIntoDB(
+    req.file,
+    password,
+    admin,
+  );
   sendResponse(res, {
     statusCode: status.OK,
     success: true,

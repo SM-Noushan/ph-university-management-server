@@ -2,7 +2,11 @@ import { Types } from "mongoose";
 import status from "http-status";
 import { User } from "./user.model";
 import AppError from "../../errors/AppError";
+import { TAdmin } from "../admin/admin.interface";
 import { Student } from "../student/student.model";
+import { TStudent } from "../student/student.interface";
+import { TFaculty } from "../faculty/faculty.interface";
+import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 import { AcademicSemester } from "../academicSemester/academicSemester.model";
 
 const findSemesterInfo = async (id: Types.ObjectId) => {
@@ -41,4 +45,17 @@ export const generateStudentId = async (semesterId: Types.ObjectId) => {
 export const generateFacultyOrAdminId = async (role: "faculty" | "admin") => {
   const lastFacultyOrAdminId = await findLastFacultyOrAdminId(role);
   return `${role === "faculty" ? "F" : "A"}-${(lastFacultyOrAdminId + 1).toString().padStart(4, "0")}`;
+};
+
+export const setImageUrlIntoPayload = async (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  file: any,
+  payload: TStudent | TFaculty | TAdmin,
+  id: string,
+) => {
+  if (file) {
+    const imageName = `${id}-${payload.name.firstName}`;
+    const path = file?.path;
+    payload.profileImg = await sendImageToCloudinary(imageName, path);
+  }
 };

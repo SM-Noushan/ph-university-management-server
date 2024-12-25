@@ -36,7 +36,6 @@ const CreateFacultyValidationSchema = z.object({
       bloodGroup: z.enum(BloodGroupEnum as [string]).optional(),
       presentAddress: address,
       permanentAddress: address,
-      profileImg: trimmedString.url().optional(),
       academicDepartment: validObjectId,
     }),
   }),
