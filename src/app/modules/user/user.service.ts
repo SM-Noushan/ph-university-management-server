@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import status from "http-status";
 import config from "../../config";
 import { User } from "./user.model";
@@ -12,15 +13,15 @@ import { TUser, TUserRole } from "./user.interface";
 import mongoose, { Model, Document } from "mongoose";
 import { TStudent } from "../student/student.interface";
 import { TFaculty } from "../faculty/faculty.interface";
+import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 import { generateFacultyOrAdminId, generateStudentId } from "./user.utils";
 import { AcademicDepartment } from "../academicDepartment/academicDepartment.model";
 
-const createStudentIntoDB = async (password: string, payload: TStudent) => {
-  // custom static method
-  //   if (await Student.isStudentExist(payload.id))
-  // throw new Error("Student already exists");
-  // static method
-
+const createStudentIntoDB = async (
+  file: any,
+  password: string,
+  payload: TStudent,
+) => {
   const userData: Pick<TUser, "id" | "password" | "role" | "email"> = {
     id: "",
     password: password || (config.defaultPassword as string),
@@ -31,12 +32,14 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   session.startTransaction();
   try {
     userData.id = await generateStudentId(payload.admissionSemester);
+    const imageName = `${userData.id}-${payload.name.firstName}`;
+    const path = file?.path;
+    const profileImg = await sendImageToCloudinary(imageName, path);
     await validateDoc({
       model: AcademicDepartment,
       query: { _id: payload.academicDepartment },
       errMsg: "Academic department does not exists",
     });
-
     // create user
     const newUser = await User.create([userData], { session });
     // create student

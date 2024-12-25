@@ -16,4 +16,7 @@ export default {
   transporterEmail: process.env.TRANSPORTER_EMAIL,
   transporterPassword: process.env.TRANSPORTER_PASSWORD,
   resetPasswordUrl: process.env.RESET_PASSWORD_URL,
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
 };

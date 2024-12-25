@@ -1,45 +1,48 @@
+import fs from "fs";
+import multer from "multer";
 import config from "../config";
+import status from "http-status";
+import AppError from "../errors/AppError";
 import { v2 as cloudinary } from "cloudinary";
 
-const sendImageToCloudinary = async () => {
-  // Configuration
-  cloudinary.config({
-    cloud_name: config.cloudinaryCloudName as string,
-    api_key: config.cloudinaryApiKey as string,
-    api_secret: config.cloudinaryApiSecret as string,
-  });
+// Configuration
+cloudinary.config({
+  cloud_name: config.cloudinaryCloudName as string,
+  api_key: config.cloudinaryApiKey as string,
+  api_secret: config.cloudinaryApiSecret as string,
+});
 
+export const sendImageToCloudinary = async (
+  imageName: string,
+  path: string,
+) => {
   // Upload an image
   const uploadResult = await cloudinary.uploader
-    .upload(
-      "https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
-      {
-        public_id: "shoes",
-      },
-    )
+    .upload(path, {
+      public_id: imageName,
+    })
     .catch(error => {
-      console.log({ error });
+      throw new AppError(
+        error.status || status.BAD_REQUEST,
+        error.message || "Failed to upload image",
+      );
     });
 
-  console.log({ uploadResult });
-
-  // Optimize delivery by resizing and applying auto-format and auto-quality
-  const optimizeUrl = cloudinary.url("shoes", {
-    fetch_format: "auto",
-    quality: "auto",
+  // delete image from local storage
+  fs.unlink(path, err => {
+    if (err) throw err;
   });
 
-  console.log({ optimizeUrl });
-
-  // Transform the image: auto-crop to square aspect_ratio
-  const autoCropUrl = cloudinary.url("shoes", {
-    crop: "auto",
-    gravity: "auto",
-    width: 500,
-    height: 500,
-  });
-
-  console.log({ autoCropUrl });
+  return uploadResult.secure_url;
 };
 
-export default sendImageToCloudinary;
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, process.cwd() + "/uploads");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix);
+  },
+});
+export const upload = multer({ storage: storage });
