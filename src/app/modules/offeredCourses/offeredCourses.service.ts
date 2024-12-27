@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import AppError from "../../errors/AppError";
 import validateDoc from "../../utils/validateDoc";
 import { Faculty } from "../faculty/faculty.model";
@@ -6,6 +6,7 @@ import { OfferedCourse } from "./offeredCourses.model";
 import { TOfferedCourse } from "./offeredCourses.interface";
 import { Course, CourseFaculty } from "../course/course.model";
 import { hasTimeConflict, TSchedule } from "./offeredCourses.utils";
+import { EnrolledCourse } from "../enrolledCourse/enrolledCourse.model";
 import { AcademicFaculty } from "../academicFaculty/academicFaculty.model";
 import { AcademicDepartment } from "../academicDepartment/academicDepartment.model";
 import { TAcademicDepartment } from "../academicDepartment/academicDepartment.interface";
@@ -223,6 +224,7 @@ const deleteOfferedCourseFromDB = async (id: string) => {
    * Step 1: check if the offered course exists
    * Step 2: check if the semester registration status is upcoming
    * Step 3: delete the offered course
+   * Step 4: delete the associated enrolled courses
    */
   //   check if the offered course exists!
   const offeredCOurseDoc = await validateDoc<TOfferedCourse>({
@@ -241,9 +243,24 @@ const deleteOfferedCourseFromDB = async (id: string) => {
       "Offered course can only be deleted for UPCOMING semester",
     );
 
-  const result = await OfferedCourse.findByIdAndDelete(id);
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
 
-  return result;
+    // Delete the offered course
+    const result = await OfferedCourse.findByIdAndDelete(id, { session });
+
+    // Delete the enrolled students
+    await EnrolledCourse.deleteMany({ offeredCourse: id }, { session });
+
+    await session.commitTransaction();
+    return result;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
 
 export const OfferedCourseServices = {
