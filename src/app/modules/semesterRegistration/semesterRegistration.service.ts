@@ -8,6 +8,7 @@ import validateDoc from "../../utils/validateDoc";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { SemesterRegistration } from "./semesterRegistration.model";
 import { OfferedCourse } from "../offeredCourses/offeredCourses.model";
+import { EnrolledCourse } from "../enrolledCourse/enrolledCourse.model";
 
 // utility
 const validateSemesterUpdate = (
@@ -129,6 +130,7 @@ const deleteSemesterRegistrationFromDB = async (id: string) => {
   session.startTransaction();
   try {
     await OfferedCourse.deleteMany({ semesterRegistration: id }, { session });
+    await EnrolledCourse.deleteMany({ semesterRegistration: id }, { session });
     await SemesterRegistration.findByIdAndDelete(id, { session });
     await session.commitTransaction();
     return { deletedSemesterRegistration: requestedSemesterRegistration };
