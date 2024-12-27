@@ -152,7 +152,6 @@ const createAdminIntoDB = async (
 };
 
 const getMe = async (id: string, role: TUserRole) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const roleModelMap: Record<TUserRole, Model<any>> = {
     [USER_ROLE.admin]: Admin,
     [USER_ROLE.faculty]: Faculty,
