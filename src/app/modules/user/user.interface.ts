@@ -3,13 +3,15 @@ import { Model } from "mongoose";
 import { USER_ROLE } from "./user.constant";
 import { TLoginUser } from "../auth/auth.interface";
 
+export type TUserRole = keyof typeof USER_ROLE;
+
 export interface TUser {
   id: string;
   password: string;
   email: string;
   needsPasswordChange: boolean;
   passwordChangedAt?: Date;
-  role: "admin" | "faculty" | "student";
+  role: TUserRole;
   status: "in-progress" | "blocked";
   isDeleted: boolean;
 }
@@ -40,5 +42,3 @@ export interface UserModel extends Model<TUser> {
     checkIsJWTIssuedBeforePasswordChanged,
   }: iValidateUserOptions) => Promise<TUser>;
 }
-
-export type TUserRole = keyof typeof USER_ROLE;

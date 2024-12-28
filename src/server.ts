@@ -3,13 +3,14 @@ import app from "./app";
 import { Server } from "http";
 import mongoose from "mongoose";
 import config from "./app/config";
+import seedSuperAdmin from "./app/db";
 
 let server: Server;
 
 async function main() {
   try {
     await mongoose.connect(config.dbUrl as string);
-
+    seedSuperAdmin();
     server = app.listen(config.port, () => {
       console.log("Server is running on port:", config.port);
     });

@@ -3,6 +3,7 @@ import status from "http-status";
 import config from "../../config";
 import { model, Schema } from "mongoose";
 import AppError from "../../errors/AppError";
+import { UserRoleEnum } from "./user.constant";
 import validateDoc from "../../utils/validateDoc";
 import { TUser, UserModel } from "./user.interface";
 
@@ -20,7 +21,7 @@ const userSchema = new Schema<TUser, UserModel>(
     role: {
       type: String,
       enum: {
-        values: ["admin", "faculty", "student"],
+        values: UserRoleEnum,
         message: "{VALUE} is not a valid role",
       },
       required: true,
@@ -43,7 +44,7 @@ const userSchema = new Schema<TUser, UserModel>(
 
 // hashing password
 userSchema.pre("save", async function (next) {
-  if (this.isModified("password"))
+  if (this.password)
     this.password = await bcrypt.hash(
       this.password,
       Number(config.bcryptSaltRounds),
