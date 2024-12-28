@@ -12,12 +12,11 @@ import { Student } from "../student/student.model";
 import { TCourse } from "../course/course.interface";
 import { TStudent } from "../student/student.interface";
 import { EnrolledCourse } from "./enrolledCourse.model";
+import { calculateGradeAndPoints } from "./enrolledCourse.utils";
 import { OfferedCourse } from "../offeredCourses/offeredCourses.model";
 import { TOfferedCourse } from "../offeredCourses/offeredCourses.interface";
 import { SemesterRegistration } from "../semesterRegistration/semesterRegistration.model";
 import { TSemesterRegistration } from "../semesterRegistration/semesterRegistration.interface";
-import { calculateGradeAndPoints } from "./enrolledCourse.utils";
-import e from "cors";
 
 const createEnrolledCourseIntoDB = async (
   offeredCourse: string,
@@ -173,6 +172,7 @@ const updateEnrolledCOurseMarksIntoDB = async (
 
     enrolledCourseData.grade = grade;
     enrolledCourseData.gradePoint = gradePoints;
+    enrolledCourseData.isCompleted = true;
   }
 
   // update the course marks
