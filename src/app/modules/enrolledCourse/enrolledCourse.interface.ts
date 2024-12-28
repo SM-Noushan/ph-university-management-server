@@ -1,13 +1,20 @@
 import { Types } from "mongoose";
 import { EnrolledCourseGrade } from "./enrolledCourse.constant";
 
-export type TGrade = keyof typeof EnrolledCourseGrade;
+export type TEnrolledCourseGrade = keyof typeof EnrolledCourseGrade;
 
-export type TCourseMarks = {
+export type TEnrolledCourseMarks = {
   classTest1: number;
   midTerm: number;
   classTest2: number;
   finalTerm: number;
+};
+
+export type TUpdateEnrolledCourseMarks = {
+  student: Types.ObjectId;
+  offeredCourse: Types.ObjectId;
+  semesterRegistration: Types.ObjectId;
+  courseMarks: Partial<TEnrolledCourseMarks>;
 };
 
 export type TEnrolledCourse = {
@@ -19,8 +26,8 @@ export type TEnrolledCourse = {
   course: Types.ObjectId;
   student: Types.ObjectId;
   faculty: Types.ObjectId;
-  courseMarks?: TCourseMarks;
-  grade?: TGrade;
+  courseMarks?: TEnrolledCourseMarks;
+  grade?: TEnrolledCourseGrade;
   gradePoint?: number;
   isEnrolled?: boolean;
   isCompleted?: boolean;

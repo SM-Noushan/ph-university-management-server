@@ -1,7 +1,13 @@
 import status from "http-status";
+import {
+  TEnrolledCourse,
+  TEnrolledCourseMarks,
+  TUpdateEnrolledCourseMarks,
+} from "./enrolledCourse.interface";
 import AppError from "../../errors/AppError";
 import mongoose, { Document } from "mongoose";
 import validateDoc from "../../utils/validateDoc";
+import { Faculty } from "../faculty/faculty.model";
 import { Student } from "../student/student.model";
 import { TCourse } from "../course/course.interface";
 import { TStudent } from "../student/student.interface";
@@ -126,4 +132,40 @@ const createEnrolledCourseIntoDB = async (
   }
 };
 
-export const EnrolledCourseServices = { createEnrolledCourseIntoDB };
+const updateEnrolledCOurseMarksIntoDB = async (
+  facultyId: string,
+  payload: TUpdateEnrolledCourseMarks,
+) => {
+  const { student, offeredCourse, semesterRegistration, courseMarks } = payload;
+
+  const enrolledCourseData = (await validateDoc({
+    model: EnrolledCourse,
+    query: {
+      student,
+      offeredCourse,
+      semesterRegistration,
+    },
+    errMsg: "Enrolled course does not exists",
+  })) as TEnrolledCourse & Document;
+
+  const loggedInFaculty = await Faculty.findOne({ id: facultyId }, { _id: 1 });
+
+  if (!loggedInFaculty?._id.equals(enrolledCourseData.faculty))
+    throw new AppError(
+      status.FORBIDDEN,
+      "You are not allowed to update this course marks",
+    );
+
+  enrolledCourseData.courseMarks = {
+    ...(enrolledCourseData.courseMarks as TEnrolledCourseMarks),
+    ...courseMarks,
+  };
+
+  await enrolledCourseData.save();
+  return enrolledCourseData;
+};
+
+export const EnrolledCourseServices = {
+  createEnrolledCourseIntoDB,
+  updateEnrolledCOurseMarksIntoDB,
+};
