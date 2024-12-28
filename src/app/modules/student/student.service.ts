@@ -41,6 +41,12 @@ const getStudentByIdFromDB = async (id: string) => {
 };
 
 const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
+  await validateDoc({
+    model: Student,
+    query: { _id: id },
+    errMsg: "Student not found",
+  });
+
   if (payload.academicDepartment) {
     const academicDepartmentInfo = await validateDoc({
       model: AcademicDepartment,

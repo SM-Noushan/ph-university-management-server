@@ -43,12 +43,15 @@ const updateFacultyIntoDB = async (id: string, payload: Partial<TFaculty>) => {
     errMsg: "Faculty not found",
   });
 
-  if (payload.academicDepartment)
-    await validateDoc({
+  if (payload.academicDepartment) {
+    const academicDepartmentInfo = await validateDoc({
       model: AcademicDepartment,
       query: { _id: payload.academicDepartment },
       errMsg: "Academic department does not exists",
     });
+    payload.academicFaculty =
+      academicDepartmentInfo.academicFaculty as mongoose.Types.ObjectId;
+  }
 
   const updatedFaculty = await Faculty.findByIdAndUpdate(
     id,

@@ -82,7 +82,7 @@ const createFacultyIntoDB = async (
   };
   userData.id = await generateFacultyOrAdminId("faculty");
   await setImageUrlIntoPayload(file, payload, userData.id);
-  await validateDoc({
+  const academicDepartmentInfo = await validateDoc({
     model: AcademicDepartment,
     query: { _id: payload.academicDepartment },
     errMsg: "Academic department does not exists",
@@ -99,7 +99,10 @@ const createFacultyIntoDB = async (
 
     payload.user = newUser[0]._id;
     payload.id = newUser[0].id;
-    const newFaculty = await Faculty.create([payload], { session });
+    const newFaculty = await Faculty.create(
+      [{ ...payload, academicFaculty: academicDepartmentInfo.academicFaculty }],
+      { session },
+    );
     if (!newFaculty.length) {
       throw new AppError(status.BAD_REQUEST, "Failed to create faculty");
     }
