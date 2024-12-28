@@ -1,4 +1,6 @@
 import express from "express";
+import auth from "../../middlewares/auth";
+import { USER_ROLE } from "../user/user.constant";
 import validateRequest from "../../middlewares/validateRequest";
 import { AcademicSemesterValidations } from "./academicSemester.validation";
 import { AcademicSemesterControllers } from "./academicSemester.controller";
@@ -9,6 +11,7 @@ router.get("/", AcademicSemesterControllers.getAllAcademicSemesters);
 router.get("/:id", AcademicSemesterControllers.getAcademicSemesterById);
 router.post(
   "/create-academic-semester",
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
   validateRequest(
     AcademicSemesterValidations.CreateAcademicSemesterValidationSchema,
   ),
@@ -16,6 +19,7 @@ router.post(
 );
 router.patch(
   "/:id",
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
   validateRequest(
     AcademicSemesterValidations.UpdateAcademicSemesterValidationSchema,
   ),

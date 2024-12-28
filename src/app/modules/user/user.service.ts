@@ -33,7 +33,7 @@ const createStudentIntoDB = async (
   };
   userData.id = await generateStudentId(payload.admissionSemester);
   await setImageUrlIntoPayload(file, payload, userData.id);
-  await validateDoc({
+  const academicDepartmentInfo = await validateDoc({
     model: AcademicDepartment,
     query: { _id: payload.academicDepartment },
     errMsg: "Academic department does not exists",
@@ -50,7 +50,10 @@ const createStudentIntoDB = async (
 
     payload.user = newUser[0]._id;
     payload.id = newUser[0].id;
-    const newStudent = await Student.create([payload], { session });
+    const newStudent = await Student.create(
+      [{ ...payload, academicFaculty: academicDepartmentInfo.academicFaculty }],
+      { session },
+    );
     if (!newStudent.length) {
       throw new AppError(status.BAD_REQUEST, "Failed to create student");
     }
@@ -151,8 +154,8 @@ const createAdminIntoDB = async (
   }
 };
 
-const getMe = async (id: string, role: TUserRole) => {
-  const roleModelMap: Record<TUserRole, Model<any>> = {
+const getMe = async (id: string, role: Exclude<TUserRole, "superAdmin">) => {
+  const roleModelMap: Record<Exclude<TUserRole, "superAdmin">, Model<any>> = {
     [USER_ROLE.admin]: Admin,
     [USER_ROLE.faculty]: Faculty,
     [USER_ROLE.student]: Student,

@@ -4,9 +4,11 @@ import { Student } from "./student.model";
 import { User } from "../user/user.model";
 import AppError from "../../errors/AppError";
 import { TStudent } from "./student.interface";
+import validateDoc from "../../utils/validateDoc";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { studentSearchableFields } from "./student.constant";
 import flattenNestedObjects from "../../utils/flattenNestedObjects";
+import { AcademicDepartment } from "../academicDepartment/academicDepartment.model";
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   const studentQuery = new QueryBuilder(Student.find(), query)
@@ -39,6 +41,15 @@ const getStudentByIdFromDB = async (id: string) => {
 };
 
 const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
+  if (payload.academicDepartment) {
+    const academicDepartmentInfo = await validateDoc({
+      model: AcademicDepartment,
+      query: { _id: payload.academicDepartment },
+      errMsg: "Academic department does not exists",
+    });
+    payload.academicFaculty =
+      academicDepartmentInfo.academicFaculty as mongoose.Types.ObjectId;
+  }
   const updatedStudent = await Student.findByIdAndUpdate(
     id,
     flattenNestedObjects(payload),
