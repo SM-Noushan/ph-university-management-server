@@ -16,6 +16,8 @@ import { OfferedCourse } from "../offeredCourses/offeredCourses.model";
 import { TOfferedCourse } from "../offeredCourses/offeredCourses.interface";
 import { SemesterRegistration } from "../semesterRegistration/semesterRegistration.model";
 import { TSemesterRegistration } from "../semesterRegistration/semesterRegistration.interface";
+import { calculateGradeAndPoints } from "./enrolledCourse.utils";
+import e from "cors";
 
 const createEnrolledCourseIntoDB = async (
   offeredCourse: string,
@@ -156,8 +158,26 @@ const updateEnrolledCOurseMarksIntoDB = async (
       "You are not allowed to update this course marks",
     );
 
+  const enrolledCourseMarks = (
+    enrolledCourseData.courseMarks as TEnrolledCourseMarks & Document
+  ).toObject();
+
+  // calculate the final grade and grade points
+  if (courseMarks.finalTerm || enrolledCourseMarks.finalTerm) {
+    const totalMarks: number = Object.values({
+      ...enrolledCourseMarks,
+      ...courseMarks,
+    } as Record<string, number>).reduce((acc, curr) => acc + curr, 0);
+
+    const { grade, gradePoints } = calculateGradeAndPoints(totalMarks / 2);
+
+    enrolledCourseData.grade = grade;
+    enrolledCourseData.gradePoint = gradePoints;
+  }
+
+  // update the course marks
   enrolledCourseData.courseMarks = {
-    ...(enrolledCourseData.courseMarks as TEnrolledCourseMarks),
+    ...enrolledCourseMarks,
     ...courseMarks,
   };
 
