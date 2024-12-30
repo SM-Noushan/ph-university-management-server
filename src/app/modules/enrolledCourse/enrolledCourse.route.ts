@@ -18,7 +18,7 @@ courseRouter.post(
 
 courseRouter.patch(
   "/update-enrolled-course-marks",
-  auth(USER_ROLE.faculty),
+  auth(USER_ROLE.superAdmin, USER_ROLE.faculty),
   validateRequest(
     EnrolledCourseValidations.updateEnrolledCourseMarksValidationSchema,
   ),

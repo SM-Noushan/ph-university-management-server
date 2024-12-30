@@ -34,7 +34,7 @@ const createEnrolledCourseIntoDB = async (
     model: OfferedCourse,
     query: { _id: offeredCourse },
     errMsg: "Offered course does not exists",
-    populate: "course",
+    populate: ["course"],
   })) as TOfferedCourse & Document;
 
   //   get student data

@@ -122,6 +122,17 @@ const deleteCourseFromDB = async (id: string) => {
   return result;
 };
 
+const getCourseFacultiesFromDB = async (course: string) => {
+  const result = await validateDoc({
+    model: CourseFaculty,
+    query: { course },
+    errMsg: "No Course Faculty found",
+    populate: ["faculties"],
+  });
+
+  return result;
+};
+
 const assignCourseFacultiesIntoDB = async (
   course: string,
   faculties: string[],
@@ -183,6 +194,7 @@ export const CourseServices = {
   createCourseIntoDB,
   updateCourseIntoDB,
   deleteCourseFromDB,
+  getCourseFacultiesFromDB,
   assignCourseFacultiesIntoDB,
   deleteCourseFacultiesFromDB,
 };

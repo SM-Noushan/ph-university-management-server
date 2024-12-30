@@ -1,14 +1,16 @@
 /* eslint-disable no-unused-vars */
 import status from "http-status";
-import { Model } from "mongoose";
 import AppError from "../errors/AppError";
+import { Model, PopulateOptions } from "mongoose";
+
+type TPopulate = PopulateOptions | (string | PopulateOptions)[];
 
 interface ValidateDocOptionsBase<T> {
   model: Model<T>;
   query: Record<string, unknown>;
   errMsg?: string;
   select?: string;
-  populate?: string;
+  populate?: TPopulate;
   trueValidate?: boolean;
 }
 
@@ -35,7 +37,7 @@ async function validateDoc<T>({
   errMsg = "",
   trueValidate = true,
   select = "",
-  populate = "",
+  populate = [],
 }: ValidateDocOptionsBase<T>): Promise<T | null> {
   const doc = await model.findOne(query).select(select).populate(populate);
 

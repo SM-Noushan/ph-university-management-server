@@ -26,6 +26,16 @@ courseRouter.delete(
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   CourseControllers.deleteCourse,
 );
+courseRouter.get(
+  "/assign-faculties/:courseId",
+  auth(
+    USER_ROLE.superAdmin,
+    USER_ROLE.admin,
+    USER_ROLE.faculty,
+    USER_ROLE.student,
+  ),
+  CourseControllers.getCourseFaculties,
+);
 courseRouter.put(
   "/assign-faculties/:courseId",
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
