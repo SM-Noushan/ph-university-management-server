@@ -1,5 +1,6 @@
 import status from "http-status";
 import catchAsync from "../../utils/catchAsync";
+import { USER_ROLE } from "./../user/user.constant";
 import sendResponse from "../../utils/sendResponse";
 import { EnrolledCourseServices } from "./enrolledCourse.service";
 
@@ -18,7 +19,9 @@ const createEnrolledCourse = catchAsync(async (req, res) => {
 
 const updateEnrolledCourseMarks = catchAsync(async (req, res) => {
   const result = await EnrolledCourseServices.updateEnrolledCOurseMarksIntoDB(
-    req.user.userId,
+    req.user.role === USER_ROLE.superAdmin
+      ? USER_ROLE.superAdmin
+      : req.user.userId,
     req.body,
   );
   sendResponse(res, {

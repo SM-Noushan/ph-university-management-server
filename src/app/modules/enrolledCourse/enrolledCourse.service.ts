@@ -7,6 +7,7 @@ import {
 import AppError from "../../errors/AppError";
 import mongoose, { Document } from "mongoose";
 import validateDoc from "../../utils/validateDoc";
+import { USER_ROLE } from "../user/user.constant";
 import { Faculty } from "../faculty/faculty.model";
 import { Student } from "../student/student.model";
 import { TCourse } from "../course/course.interface";
@@ -149,13 +150,18 @@ const updateEnrolledCOurseMarksIntoDB = async (
     errMsg: "Enrolled course does not exists",
   })) as TEnrolledCourse & Document;
 
-  const loggedInFaculty = await Faculty.findOne({ id: facultyId }, { _id: 1 });
-
-  if (!loggedInFaculty?._id.equals(enrolledCourseData.faculty))
-    throw new AppError(
-      status.FORBIDDEN,
-      "You are not allowed to update this course marks",
+  if (facultyId !== USER_ROLE.superAdmin) {
+    const loggedInFaculty = await Faculty.findOne(
+      { id: facultyId },
+      { _id: 1 },
     );
+
+    if (!loggedInFaculty?._id.equals(enrolledCourseData.faculty))
+      throw new AppError(
+        status.FORBIDDEN,
+        "You are not allowed to update this course marks",
+      );
+  }
 
   const enrolledCourseMarks = (
     enrolledCourseData.courseMarks as TEnrolledCourseMarks & Document
