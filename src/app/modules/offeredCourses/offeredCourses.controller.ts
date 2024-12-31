@@ -18,6 +18,7 @@ const getAllOfferedCourses = catchAsync(async (req, res) => {
 const getMyOfferedCourses = catchAsync(async (req, res) => {
   const result = await OfferedCourseServices.getMyOfferedCoursesFromDB(
     req.user.userId,
+    req.query,
   );
   sendResponse(res, {
     statusCode: status.OK,

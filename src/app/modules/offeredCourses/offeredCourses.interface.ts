@@ -15,3 +15,5 @@ export type TOfferedCourse = {
   startTime: string;
   endTime: string;
 };
+
+export type TPaginationPipeline = { $skip: number } | { $limit: number };

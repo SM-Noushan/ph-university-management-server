@@ -1,3 +1,7 @@
+import {
+  TOfferedCourse,
+  TPaginationPipeline,
+} from "./offeredCourses.interface";
 import AppError from "../../errors/AppError";
 import validateDoc from "../../utils/validateDoc";
 import { Student } from "../student/student.model";
@@ -5,7 +9,6 @@ import { Faculty } from "../faculty/faculty.model";
 import mongoose, { Document, Types } from "mongoose";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { OfferedCourse } from "./offeredCourses.model";
-import { TOfferedCourse } from "./offeredCourses.interface";
 import { Course, CourseFaculty } from "../course/course.model";
 import { hasTimeConflict, TSchedule } from "./offeredCourses.utils";
 import { EnrolledCourse } from "../enrolledCourse/enrolledCourse.model";
@@ -26,7 +29,10 @@ const getAllOfferedCoursesFromDB = async (query: Record<string, unknown>) => {
   return { meta, result };
 };
 
-const getMyOfferedCoursesFromDB = async (studentId: string) => {
+const getMyOfferedCoursesFromDB = async (
+  studentId: string,
+  query: Record<string, unknown>,
+) => {
   // find the student
   const student = await Student.findOne({ id: studentId });
 
@@ -37,8 +43,13 @@ const getMyOfferedCoursesFromDB = async (studentId: string) => {
     errMsg: "No ongoing semester registration found",
   })) as TSemesterRegistration & Document;
 
+  // pagination
+  const page: number = parseInt(query?.page as string) || 1;
+  const limit: number = parseInt(query?.limit as string) || 0;
+  const skip: number = (page - 1) * limit;
+
   // find the offered courses
-  const result = await OfferedCourse.aggregate([
+  const aggregationQuery = [
     // match the courses that are offered in the current ongoing semester for logged in student
     {
       $match: {
@@ -177,9 +188,36 @@ const getMyOfferedCoursesFromDB = async (studentId: string) => {
         preRequisiteCourses: 0,
       },
     },
+  ];
+  const paginationQuery: TPaginationPipeline[] = [
+    {
+      $skip: skip,
+    },
+  ];
+  if (limit !== 0) {
+    paginationQuery.push({
+      $limit: limit,
+    });
+  }
+
+  const result = await OfferedCourse.aggregate([
+    ...aggregationQuery,
+    ...paginationQuery,
   ]);
 
-  return result;
+  // pagination
+  const total = (await OfferedCourse.aggregate(aggregationQuery)).length;
+  const totalPages = limit === 0 ? 1 : Math.ceil(total / limit);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+    result,
+  };
 };
 
 const getOfferedCourseByIdFromDB = async (id: string) => {
