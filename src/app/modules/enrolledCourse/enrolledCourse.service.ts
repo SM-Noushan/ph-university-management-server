@@ -18,6 +18,24 @@ import { OfferedCourse } from "../offeredCourses/offeredCourses.model";
 import { TOfferedCourse } from "../offeredCourses/offeredCourses.interface";
 import { SemesterRegistration } from "../semesterRegistration/semesterRegistration.model";
 import { TSemesterRegistration } from "../semesterRegistration/semesterRegistration.interface";
+import QueryBuilder from "../../builder/QueryBuilder";
+
+const getMyEnrolledCoursesFromDB = async (
+  sid: string,
+  query: Record<string, unknown>,
+) => {
+  // get student data
+  const studentData = await Student.findOne({ id: sid }, { _id: 1 });
+  const enrolledCourseQuery = new QueryBuilder(
+    EnrolledCourse.find({ student: studentData?._id }).populate(
+      "semesterRegistration academicSemester academicFaculty academicDepartment offeredCourse course student faculty",
+    ),
+    query,
+  ).paginate();
+  const result = await enrolledCourseQuery.modelQuery;
+  const meta = await enrolledCourseQuery.countTotal();
+  return { meta, result };
+};
 
 const createEnrolledCourseIntoDB = async (
   offeredCourse: string,
@@ -192,6 +210,7 @@ const updateEnrolledCOurseMarksIntoDB = async (
 };
 
 export const EnrolledCourseServices = {
+  getMyEnrolledCoursesFromDB,
   createEnrolledCourseIntoDB,
   updateEnrolledCOurseMarksIntoDB,
 };

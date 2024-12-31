@@ -4,6 +4,20 @@ import { USER_ROLE } from "./../user/user.constant";
 import sendResponse from "../../utils/sendResponse";
 import { EnrolledCourseServices } from "./enrolledCourse.service";
 
+const getMyEnrolledCourses = catchAsync(async (req, res) => {
+  const result = await EnrolledCourseServices.getMyEnrolledCoursesFromDB(
+    req.user.userId,
+    req.query,
+  );
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Enrolled Course retrieved successfully",
+    meta: result.meta,
+    data: result.result,
+  });
+});
+
 const createEnrolledCourse = catchAsync(async (req, res) => {
   const result = await EnrolledCourseServices.createEnrolledCourseIntoDB(
     req.body.offeredCourse,
@@ -33,6 +47,7 @@ const updateEnrolledCourseMarks = catchAsync(async (req, res) => {
 });
 
 export const EnrolledCourseControllers = {
+  getMyEnrolledCourses,
   createEnrolledCourse,
   updateEnrolledCourseMarks,
 };

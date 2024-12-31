@@ -7,6 +7,12 @@ import { EnrolledCourseControllers } from "./enrolledCourse.controller";
 
 const courseRouter = express.Router();
 
+courseRouter.get(
+  "/my-enrolled-courses",
+  auth(USER_ROLE.student),
+  EnrolledCourseControllers.getMyEnrolledCourses,
+);
+
 courseRouter.post(
   "/create-enrolled-course",
   auth(USER_ROLE.student),
